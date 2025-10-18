@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     console.log('[add-contact] Tentative d\'envoi email avec Resend');
-    const result = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'no-reply@lapetitevitrine.com',
       to: process.env.ADMIN_EMAIL || 'contact@lapetitevitrine.com',
       subject: `Nouvelle demande de contact - ${firstName}`,
@@ -31,11 +31,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         <p><strong>Email :</strong> ${email}</p>
         <p><strong>Téléphone :</strong> ${contact}</p>
       `,
-      reply_to: email,
+      replyTo: email, // Correction : reply_to -> replyTo
     });
 
-    console.log('[add-contact] Email envoyé avec succès:', result);
-    return res.status(200).json({ message: 'Email envoyé', id: result.id });
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log('[add-contact] Email envoyé avec succès:', data);
+    return res.status(200).json({ message: 'Email envoyé', id: data.id });
   } catch (error: any) {
     console.error('[add-contact] Erreur Resend:', {
       message: error?.message,
