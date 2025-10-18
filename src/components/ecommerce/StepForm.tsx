@@ -56,6 +56,13 @@ export const StepForm: React.FC<StepFormProps> = ({
 
   // Validation des champs
   const validateField = (field: FormField, value: any): string | null => {
+    // Rendre les champs non obligatoires pour les étapes 2, 3, 4, 5
+    // Supposons que l'étape 1 (index 0) est la seule obligatoire
+    if (currentStep > 0) {
+      // Ignore la validation "required" pour toutes les étapes sauf la première
+      return null;
+    }
+
     if (field.required && (!value || value.toString().trim() === "")) {
       return `${field.label} est requis`;
     }
@@ -63,7 +70,6 @@ export const StepForm: React.FC<StepFormProps> = ({
     // Suppression de la vérification minLength et maxLength
     if (field.validation) {
       const { pattern } = field.validation;
-
       if (pattern && value && !new RegExp(pattern).test(value.toString())) {
         return `${field.label} n'est pas valide`;
       }
