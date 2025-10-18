@@ -164,6 +164,30 @@ export const useEcommerce = () => {
     setCustomer(null);
   };
 
+  const REQUIRED_FIELDS_BY_STEP: Record<number, string[]> = {
+    0: ['firstName', 'lastName', 'email', 'phone'], // Étape 1 obligatoire
+    1: [], // Étape 2 facultative
+    2: [], // Étape 3 facultative
+    3: [], // Étape 4 facultative
+    4: [], // Étape 5 facultative
+  };
+
+  // Exemple de fonction de validation
+  function isFormValid(formData: any, currentStep: number): boolean {
+    // Étape 1 : informations de contact (toujours obligatoire)
+    if (currentStep === 0) {
+      return !!formData.firstName && !!formData.lastName && !!formData.email && !!formData.phone;
+    }
+    // Étapes 2, 3, 4, 5 : champs facultatifs
+    // On ne vérifie pas la présence des champs, ils peuvent être vides ou absents
+    return true;
+  }
+
+  function isStepValid(formData: any, step: number): boolean {
+    const required = REQUIRED_FIELDS_BY_STEP[step] || [];
+    return required.every((field) => !!formData[field]);
+  }
+
   return {
     // État
     stepFormData,
@@ -185,7 +209,8 @@ export const useEcommerce = () => {
     resetCustomerSession,
     
     // Utilitaires
-    isFormValid: stepFormData.steps.every(step => step.isCompleted) && stepFormData.selectedPack && stepFormData.selectedMaintenance,
+    isFormValid,
+    isStepValid,
     currentStep: stepFormData.steps[stepFormData.currentStep],
     isLastStep: stepFormData.currentStep === stepFormData.steps.length - 1,
     isFirstStep: stepFormData.currentStep === 0
