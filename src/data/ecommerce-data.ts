@@ -21,7 +21,7 @@ export const PACKS: Pack[] = [
   {
     id: "pack-presence", 
     title: "Pack Pro",
-    price: 690,
+    price: 990,
     description: "Tout le pack de base + réseaux sociaux",
     features: [
       "Tout le pack de base",
@@ -36,7 +36,7 @@ export const PACKS: Pack[] = [
   {
     id: "pack-metier",
     title: "Pack Pro Plus",
-    price: 990,
+    price: 1490,
     description: "Solution complète avec modules métier",
     features: [
       "Tout le pack pro",
