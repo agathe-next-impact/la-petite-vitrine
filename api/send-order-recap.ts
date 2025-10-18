@@ -63,11 +63,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       await resend.emails.send({
-        from: 'contact@lapetitevitrine.com',
+        from: process.env.FROM_EMAIL || 'contact@lapetitevitrine.com',
         to,
         subject,
         html,
         attachments,
+        replyTo: 'contact@lapetitevitrine.com' // Permet la réponse à la bonne adresse
       });
       res.status(200).json({ success: true });
     } catch (e: any) {
