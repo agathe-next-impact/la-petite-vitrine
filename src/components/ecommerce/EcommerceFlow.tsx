@@ -169,7 +169,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                 </p>
                 <div style="text-align:center;margin:24px 0;">
                   <a
-                    href="https://calendly.com/agat-dev/creation-du-site-internet"
+                    href="mailto:contact@lapetitevitrine.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     style="

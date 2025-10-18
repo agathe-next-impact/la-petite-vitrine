@@ -1,37 +1,51 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[add-contact] Début traitement requête');
+  
   if (req.method !== 'POST') {
-    return res.status(405).end();
+    console.log('[add-contact] Méthode non autorisée:', req.method);
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { firstName, contact } = req.body;
-  if (!firstName || !contact) {
-    return res.status(400).json({ error: 'Missing fields' });
+  const { firstName, contact, email } = req.body ?? {};
+  console.log('[add-contact] Données reçues:', { firstName, contact, email });
+
+  if (!firstName || !contact || !email) {
+    console.log('[add-contact] Champs manquants');
+    return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
-    const token = process.env.NOTION_TOKEN as string;
-    const databaseId = process.env.NOTION_DATABASE_ID as string;
-
-    await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        parent: { database_id: databaseId },
-        properties: {
-          Name: { title: [{ text: { content: firstName } }] },
-          Contact: { rich_text: [{ text: { content: contact } }] },
-        },
-      }),
+    console.log('[add-contact] Tentative d\'envoi email avec Resend');
+    const result = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'no-reply@lapetitevitrine.com',
+      to: process.env.ADMIN_EMAIL || 'contact@lapetitevitrine.com',
+      subject: `Nouvelle demande de contact - ${firstName}`,
+      html: `
+        <h2>Nouvelle demande de contact</h2>
+        <p><strong>Prénom :</strong> ${firstName}</p>
+        <p><strong>Email :</strong> ${email}</p>
+        <p><strong>Téléphone :</strong> ${contact}</p>
+      `,
+      reply_to: email,
     });
 
-    res.status(200).json({ success: true });
-  } catch (e: any) {
-    res.status(500).json({ error: e.message });
+    console.log('[add-contact] Email envoyé avec succès:', result);
+    return res.status(200).json({ message: 'Email envoyé', id: result.id });
+  } catch (error: any) {
+    console.error('[add-contact] Erreur Resend:', {
+      message: error?.message,
+      name: error?.name,
+      response: error?.response,
+      stack: error?.stack,
+    });
+    return res.status(500).json({ 
+      message: 'Erreur lors de l\'envoi',
+      detail: error?.message 
+    });
   }
 }

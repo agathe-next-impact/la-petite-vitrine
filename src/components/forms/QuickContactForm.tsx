@@ -30,9 +30,17 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, contact, email }),
       });
-      if (!res.ok) throw new Error('Request failed');
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Erreur réponse:', { status: res.status, data });
+        throw new Error(data.message || 'Request failed');
+      }
+
       setSent(true);
-    } catch {
+    } catch (err) {
+      console.error('Erreur formulaire:', err);
       setError("Une erreur est survenue. Veuillez réessayer plus tard.");
     }
   };
