@@ -161,13 +161,16 @@ export const StepForm: React.FC<StepFormProps> = ({
       error ? "border-red-400" : "border-amber-300/40 focus:border-amber-400/30"
     );
 
+    // Détermine si le champ est obligatoire pour l'étape courante
+    const showRequiredStar = field.required && currentStep === 0;
+
     switch (field.type) {
       case "textarea":
         return (
           <div key={field.id} className="space-y-2">
             <label className="block text-sm font-medium text-blue-gray900 font-body-m">
               {field.label}{" "}
-              {field.required && <span className="text-red-500">*</span>}
+              {showRequiredStar && <span className="text-red-500">*</span>}
             </label>
             <textarea
               className={cn(baseInputClasses, "min-h-[100px] resize-vertical")}
@@ -184,7 +187,7 @@ export const StepForm: React.FC<StepFormProps> = ({
           <div key={field.id} className="space-y-2">
             <label className="block text-sm font-medium text-blue-gray900 font-body-m">
               {field.label}{" "}
-              {field.required && <span className="text-red-500">*</span>}
+              {showRequiredStar && <span className="text-red-500">*</span>}
             </label>
             <div className="relative">
               <button
@@ -254,7 +257,7 @@ export const StepForm: React.FC<StepFormProps> = ({
           <div key={field.id} className="space-y-2">
             <label className="block text-sm font-medium text-blue-gray900 font-body-m">
               {field.label}{" "}
-              {field.required && <span className="text-red-500">*</span>}
+              {showRequiredStar && <span className="text-red-500">*</span>}
             </label>
             <div className="space-y-3">
               {field.options?.map((option) => (
@@ -287,7 +290,7 @@ export const StepForm: React.FC<StepFormProps> = ({
           <div key={field.id} className="space-y-2">
             <label className="block text-sm font-medium text-blue-gray900 font-body-m">
               {field.label}{" "}
-              {field.required && <span className="text-red-500">*</span>}
+              {showRequiredStar && <span className="text-red-500">*</span>}
             </label>
             <p className="text-xs text-blue-gray-600">Jusqu'à {MAX_FILES_PER_FIELD} fichiers.</p>
             <div className="relative w-full">
@@ -367,14 +370,13 @@ export const StepForm: React.FC<StepFormProps> = ({
         );
 
       default:
-        // On ne rend plus les champs password et confirmPassword
         if (field.id === "password" || field.id === "confirmPassword")
           return null;
         return (
           <div key={field.id} className="space-y-2">
             <label className="block text-sm font-medium text-blue-gray900 font-body-m">
               {field.label}{" "}
-              {field.required && <span className="text-red-500">*</span>}
+              {showRequiredStar && <span className="text-red-500">*</span>}
             </label>
             <input
               type={field.type}
