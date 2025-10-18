@@ -76,7 +76,7 @@ export const HeroSection = (): JSX.Element => {
       </AnimatedSection>
       <div className="md:basis-1/2 md:mt-8 md:pt-8 pt-48 w-full mx-auto">
         <QuickContactForm
-          title="Vous préférez qu'on vous rappelle ? Laissez vos infos ici 👇"
+          title="Vous voulez être contacté(e) ? Laissez vos infos ici 👇"
           buttonText="Être rappelé(e)"
         />
       </div>

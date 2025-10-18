@@ -13,12 +13,13 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
 }) => {
   const [firstName, setFirstName] = useState('');
   const [contact, setContact] = useState('');
+  const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !contact) {
+    if (!firstName || !contact || !email) {
       setError('Veuillez remplir tous les champs');
       return;
     }
@@ -27,7 +28,7 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
       const res = await fetch('/api/add-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, contact }),
+        body: JSON.stringify({ firstName, contact, email }),
       });
       if (!res.ok) throw new Error('Request failed');
       setSent(true);
@@ -52,7 +53,14 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
           className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
         />
         <input
-          type="text"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
+        />
+        <input
+          type="tel"
           placeholder="Téléphone"
           value={contact}
           onChange={(e) => setContact(e.target.value)}
