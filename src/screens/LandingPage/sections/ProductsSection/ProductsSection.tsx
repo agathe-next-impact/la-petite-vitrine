@@ -41,7 +41,7 @@ export const ProductsSection = (): JSX.Element => {
       id: "pack-presence",
       icon: "⭐",
       title: "Pack Pro",
-      price: "690€",
+      price: "990€",
       maintenance: "Maintenance à choisir",
       features: [
         "Tout le pack de base",
@@ -61,7 +61,7 @@ export const ProductsSection = (): JSX.Element => {
       id: "pack-metier",
       icon: "🎨",
       title: "Pack Pro Plus",
-      price: "990€",
+      price: "1490€",
       maintenance: "Maintenance à choisir",
       features: [
         "Tout le pack pro",
