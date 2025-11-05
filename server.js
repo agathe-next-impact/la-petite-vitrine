@@ -246,18 +246,14 @@ app.post('/api/add-contact', async (req, res) => {
 });
 
 // Route pour les commandes (emails de récapitulatif)
-app.post('/api/send-order-recap', upload.fields([
-  { name: 'visualFiles', maxCount: 10 },
-  { name: 'textFiles', maxCount: 10 },
-  { name: 'otherFiles', maxCount: 10 }
-]), async (req, res) => {
-  console.log('📨 Réception récapitulatif commande:', { body: req.body, files: req.files });
+app.post('/api/send-order-recap', async (req, res) => {
+  console.log('📨 Réception récapitulatif commande:', { body: req.body });
   
-  const { to, subject, html } = req.body;
+  const { to, subject, htmlContent } = req.body;
 
-  if (!to || !subject || !html) {
-    console.log('❌ Champs manquants pour récapitulatif:', { to, subject, html: html ? 'présent' : 'manquant' });
-    return res.status(400).json({ message: 'Champs manquants (to, subject, html requis)' });
+  if (!to || !subject || !htmlContent) {
+    console.log('❌ Champs manquants pour récapitulatif:', { to, subject, htmlContent: htmlContent ? 'présent' : 'manquant' });
+    return res.status(400).json({ message: 'Champs manquants (to, subject, htmlContent requis)' });
   }
 
   if (!mailer) {
@@ -268,50 +264,24 @@ app.post('/api/send-order-recap', upload.fields([
   try {
     console.log('📤 Envoi email récapitulatif...');
     
-    // Préparation des pièces jointes
-    const attachments = [];
-    console.log('📁 Fichiers reçus:', req.files);
-    if (req.files) {
-      ['visualFiles', 'textFiles', 'otherFiles'].forEach(fieldName => {
-        if (req.files[fieldName]) {
-          console.log(`📎 ${fieldName}:`, req.files[fieldName].map(f => ({ 
-            name: f.originalname, 
-            size: f.size, 
-            type: f.mimetype 
-          })));
-          req.files[fieldName].forEach((file, index) => {
-            console.log(`📎 Ajout fichier ${fieldName}-${index}: ${file.originalname} (${file.mimetype})`);
-            attachments.push({
-              filename: file.originalname,
-              content: file.buffer,
-              cid: `${fieldName}-${index}` // Pour référence dans le HTML
-            });
-          });
-        } else {
-          console.log(`📂 Aucun fichier dans ${fieldName}`);
-        }
-      });
-    } else {
-      console.log('📂 Aucun fichier reçu dans req.files');
-    }
-    
-    console.log(`📎 Total attachments préparés: ${attachments.length}`);
-
-    await mailer.sendMail({
-      from: `"La Petite Vitrine" <${process.env.SMTP_USER}>`,
+    const result = await mailer.sendMail({
+      from: process.env.SMTP_FROM,
       to: to,
       subject: subject,
-      html: html,
-      attachments: attachments
+      html: htmlContent,
     });
 
-    console.log('✅ Email récapitulatif envoyé avec succès');
-    return res.status(200).json({ success: true });
-  } catch (err) {
-    console.error('❌ Erreur envoi email récapitulatif:', err);
-    return res.status(500).json({ 
-      message: 'Erreur lors de l\'envoi', 
-      detail: err?.message 
+    console.log('✅ Email récapitulatif envoyé avec succès!', result.messageId);
+    res.json({ 
+      message: 'Email envoyé avec succès', 
+      messageId: result.messageId 
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur envoi email récapitulatif:', error);
+    res.status(500).json({ 
+      message: 'Erreur lors de l\'envoi de l\'email', 
+      error: error.message 
     });
   }
 });
