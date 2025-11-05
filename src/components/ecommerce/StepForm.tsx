@@ -5,8 +5,6 @@ import { Button } from "../ui/button";
 import { FormStep, FormField } from "../../types/ecommerce";
 import { cn } from "../../lib/utils";
 
-const MAX_FILES_PER_FIELD = 3;
-
 interface StepFormProps {
   steps: FormStep[];
   currentStep: number;
@@ -18,12 +16,6 @@ interface StepFormProps {
   isLastStep: boolean;
   isFirstStep: boolean;
   className?: string;
-  visualFiles: File[];
-  textFiles: File[];
-  otherFiles: File[];
-  setVisualFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  setTextFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  setOtherFiles: React.Dispatch<React.SetStateAction<File[]>>;
 }
 
 export const StepForm: React.FC<StepFormProps> = ({
@@ -37,12 +29,6 @@ export const StepForm: React.FC<StepFormProps> = ({
   isLastStep,
   isFirstStep,
   className,
-  visualFiles,
-  textFiles,
-  otherFiles,
-  setVisualFiles,
-  setTextFiles,
-  setOtherFiles,
 }) => {
   const [currentStepData, setCurrentStepData] = useState<Record<string, any>>(
     {}
@@ -281,90 +267,6 @@ export const StepForm: React.FC<StepFormProps> = ({
                 </label>
               ))}
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-          </div>
-        );
-
-      case "file":
-        return (
-          <div key={field.id} className="space-y-2">
-            <label className="block text-sm font-medium text-blue-gray900 font-body-m">
-              {field.label}{" "}
-              {showRequiredStar && <span className="text-red-500">*</span>}
-            </label>
-            <p className="text-xs text-blue-gray-600">Jusqu'à {MAX_FILES_PER_FIELD} fichiers.</p>
-            <div className="relative w-full">
-              <input
-                id={`file-input-${field.id}`}
-                type="file"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  if (!files.length) return;
-                  const addFiles = (
-                    current: File[],
-                    setFiles: React.Dispatch<React.SetStateAction<File[]>>,
-                  ) => {
-                    let updated = [...current, ...files];
-                    if (updated.length > MAX_FILES_PER_FIELD) {
-                      updated = updated.slice(0, MAX_FILES_PER_FIELD);
-                      setErrors((prev) => ({
-                        ...prev,
-                        [field.id]: `Vous pouvez ajouter au maximum ${MAX_FILES_PER_FIELD} fichiers`,
-                      }));
-                    } else {
-                      setErrors((prev) => ({ ...prev, [field.id]: "" }));
-                    }
-                    setFiles(updated);
-                    handleFieldChange(field.id, updated[0]);
-                  };
-                  if (field.id === "elements_visuels") {
-                    addFiles(visualFiles, setVisualFiles);
-                  } else if (field.id === "textes_contenus") {
-                    addFiles(textFiles, setTextFiles);
-                  } else if (field.id === "autres_fichiers") {
-                    addFiles(otherFiles, setOtherFiles);
-                  }
-                }}
-                aria-label={field.label}
-                multiple
-              />
-              <label
-                htmlFor={`file-input-${field.id}`}
-                className={cn(
-                  "w-max flex items-center justify-center gap-2 px-4 py-1 rounded-xl bg-amber-600 text-white font-medium shadow-md cursor-pointer transition hover:bg-amber-700 border border-amber-300",
-                  error ? "border-red-400" : "border-amber-300/40"
-                )}
-              >
-                <svg
-                  className="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12l4-4m0 0l4 4m-4-4v12"
-                  />
-                </svg>
-                <span>Choisir des fichiers</span>
-              </label>
-            </div>
-            {(() => {
-              let list: File[] = [];
-              if (field.id === "elements_visuels") list = visualFiles;
-              else if (field.id === "textes_contenus") list = textFiles;
-              else if (field.id === "autres_fichiers") list = otherFiles;
-              return list.length ? (
-                <ul className="mt-2 list-disc pl-5 text-sm text-blue-gray-700 space-y-1">
-                  {list.map((f, idx) => (
-                    <li key={idx}>{f.name}</li>
-                  ))}
-                </ul>
-              ) : null;
-            })()}
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
         );

@@ -103,60 +103,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
       });
       
       if (pack && maintenance && formData.email) {
-        // Préparation du FormData pour l'envoi de fichiers en pièce jointe
-        const attachmentInfos: { cid: string; label: string; filename: string }[] = [];
-        const cidList: string[] = [];
-        const addFiles = (
-          files: File[],
-          field: 'visualFiles' | 'textFiles' | 'otherFiles',
-          labelKey: string,
-        ) => {
-          files.forEach((f, idx) => {
-            const cid = `${field}-${idx}`;
-            attachmentInfos.push({ cid, label: FORM_FIELD_LABELS[labelKey], filename: f.name });
-            cidList.push(cid);
-          });
-        };
-        addFiles(visualFiles, 'visualFiles', 'elements_visuels');
-        addFiles(textFiles, 'textFiles', 'textes_contenus');
-        addFiles(otherFiles, 'otherFiles', 'autres_fichiers');
-
-        const buildFormData = (to: string, subject: string, html: string) => {
-          const fd = new FormData();
-          fd.append('to', to);
-          fd.append('subject', subject);
-          fd.append('html', html);
-          if (cidList.length) {
-            fd.append('cids', JSON.stringify(cidList));
-          }
-
-          console.log('📎 Fichiers à envoyer:');
-          console.log('  - visualFiles:', visualFiles.map(f => f.name));
-          console.log('  - textFiles:', textFiles.map(f => f.name));
-          console.log('  - otherFiles:', otherFiles.map(f => f.name));
-
-          visualFiles.forEach((f) => fd.append('visualFiles', f, f.name));
-          textFiles.forEach((f) => fd.append('textFiles', f, f.name));
-          otherFiles.forEach((f) => fd.append('otherFiles', f, f.name));
-
-          return fd;
-        };
-
         // Email client
-        const filesSection = attachmentInfos.length
-          ? `
-              <h3>Fichiers transmis</h3>
-              <ul>
-                ${attachmentInfos
-                  .map(
-                    (i) =>
-                      `<li><strong style="color:#2E66C1;">${i.label}:</strong> <a href="cid:${i.cid}" style="color:#F59E42;">${i.filename}</a></li>`,
-                  )
-                  .join('')}
-              </ul>
-            `
-          : '';
-
         const htmlClient = `
           <!DOCTYPE html>
           <html>
@@ -231,7 +178,6 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                     .map(([k, v]) => `<li><strong style="color:#2E66C1;">${FORM_FIELD_LABELS[k] ?? k}:</strong> <span style="color:#222;">${v}</span></li>`)
                     .join('')}
                 </ul>
-                ${filesSection}
                 <h3>Montant total</h3>
                 <p style="font-size:1.1rem;color:#2E66C1;font-weight:700;margin:0 0 8px 0;">
                   ${total}€ <span style="color:#222;font-weight:400;font-size:0.95rem;">(+${maintenance.price}€/mois de maintenance)</span>
@@ -299,7 +245,6 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                     .map(([k, v]) => `<li><strong style="color:#2E66C1;">${FORM_FIELD_LABELS[k] ?? k}:</strong> <span style="color:#222;">${v}</span></li>`)
                     .join('')}
                 </ul>
-                ${filesSection}
                 <h3>Montant total</h3>
                 <p style="font-size:1.1rem;color:#2E66C1;font-weight:700;margin:0 0 8px 0;">
                   ${total}€ <span style="color:#222;font-weight:400;font-size:0.95rem;">(+${maintenance.price}€/mois de maintenance)</span>
@@ -313,11 +258,18 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
           </html>
         `;
 
-        // Envoi email client avec fichiers en PJ
+        // Envoi email client
         console.log('📤 Envoi email client...', formData.email);
         const clientResponse = await fetch('http://localhost:3001/api/send-order-recap', {
           method: 'POST',
-          body: buildFormData(formData.email, 'Votre récapitulatif de commande - La Petite Vitrine', htmlClient),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: formData.email,
+            subject: 'Votre récapitulatif de commande - La Petite Vitrine',
+            htmlContent: htmlClient,
+          }),
         });
         
         if (!clientResponse.ok) {
@@ -328,11 +280,18 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
         }
         console.log('✅ Email client envoyé avec succès');
 
-        // Envoi email admin avec fichiers en PJ
+        // Envoi email admin
         console.log('📤 Envoi email admin...', adminEmail);
         const adminResponse = await fetch('http://localhost:3001/api/send-order-recap', {
           method: 'POST',
-          body: buildFormData(adminEmail, 'Nouvelle commande reçue - La Petite Vitrine', htmlAdmin),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: adminEmail,
+            subject: 'Nouvelle commande reçue - La Petite Vitrine',
+            htmlContent: htmlAdmin,
+          }),
         });
         
         if (!adminResponse.ok) {
@@ -402,12 +361,6 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     textes_contenus: "Fichiers textes",
     autres_fichiers: "Autres fichiers",
   };
-
-  // Ajoute un state local pour les fichiers dans EcommerceFlow
-  const [visualFiles, setVisualFiles] = useState<File[]>([]);
-  const [textFiles, setTextFiles] = useState<File[]>([]);
-  const [otherFiles, setOtherFiles] = useState<File[]>([]);
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-gray-50 py-8">
@@ -529,12 +482,6 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                 isLastStep={isLastStep}
                 isFirstStep={isFirstStep}
                 className="bg-white/90 backdrop-blur-sm border-amber-200/50 shadow-lg rounded-2xl"
-                visualFiles={visualFiles}
-                textFiles={textFiles}
-                otherFiles={otherFiles}
-                setVisualFiles={setVisualFiles}
-                setTextFiles={setTextFiles}
-                setOtherFiles={setOtherFiles}
               />
             )}
 

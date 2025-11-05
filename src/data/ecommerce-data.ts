@@ -201,32 +201,6 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
         placeholder: "Décrivez votre zone d'intervention géographique (villes, départements, rayon en km...)",
         required: true,
         validation: { minLength: 10, maxLength: 300 }
-      }
-    ]
-  },
-  {
-    id: "step-3",
-    title: "Éléments visuels et contenus",
-    description: "Vos fichiers et contenus existants",
-    isCompleted: false,
-    fields: [
-      {
-        id: "elements_visuels",
-        type: "file",
-        label: "Éléments visuels (logo, charte, photos etc.)",
-        required: false
-      },
-      {
-        id: "textes_contenus",
-        type: "file",
-        label: "Textes et contenus",
-        required: false
-      },
-      {
-        id: "autres_fichiers",
-        type: "file",
-        label: "Autres fichiers",
-        required: false
       },
       {
         id: "liens_contenus_existants",
