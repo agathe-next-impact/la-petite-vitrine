@@ -11,12 +11,14 @@ interface PackSelectorProps {
   selectedPack?: Pack;
   onSelectPack: (pack: Pack) => void;
   className?: string;
+  showPackDetails?: boolean; // Nouvelle prop pour contrôler l'affichage des détails
 }
 
 export const PackSelector: React.FC<PackSelectorProps> = ({
   selectedPack,
   onSelectPack,
-  className
+  className,
+  showPackDetails = true
 }) => {
   const [openPackId, setOpenPackId] = useState<string | null>(null);
 
@@ -64,34 +66,36 @@ export const PackSelector: React.FC<PackSelectorProps> = ({
                   Livraison en {pack.deliveryTime}
                 </p>
               </CardHeader>
-              <div className="flex justify-center pb-2">
-                    <button
-                      type="button"
-                      className={cn(
-                        "flex items-center gap-1 text-amber-700 text-sm font-medium transition-colors",
-                        isOpen ? "font-bold text-amber-900" : ""
-                      )}
-                      onClick={e => {
-                        e.stopPropagation();
-                        setOpenPackId(isOpen ? null : pack.id);
-                      }}
-                      aria-expanded={isOpen}
-                      aria-controls={`pack-content-${pack.id}`}
-                    >
-                      <span>
-                        {isOpen ? "Masquer le contenu du pack" : "Voir le contenu du pack"}
-                      </span>
-                      <motion.span
-                        animate={{ rotate: isOpen ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="inline-block"
+              {showPackDetails && (
+                <div className="flex justify-center pb-2">
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex items-center gap-1 text-amber-700 text-sm font-medium transition-colors",
+                          isOpen ? "font-bold text-amber-900" : ""
+                        )}
+                        onClick={() => {
+                          // Ne pas empêcher la propagation - permettre la redirection
+                          setOpenPackId(isOpen ? null : pack.id);
+                        }}
+                        aria-expanded={isOpen}
+                        aria-controls={`pack-content-${pack.id}`}
                       >
-                        <ChevronDown className="w-4 h-4" />
-                      </motion.span>
-                    </button>
-                  </div>
+                        <span>
+                          {isOpen ? "Masquer le contenu du pack" : "Voir le contenu du pack"}
+                        </span>
+                        <motion.span
+                          animate={{ rotate: isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="inline-block"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </motion.span>
+                      </button>
+                    </div>
+              )}
                   <AnimatePresence initial={false}>
-                    {isOpen && (
+                    {isOpen && showPackDetails && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}

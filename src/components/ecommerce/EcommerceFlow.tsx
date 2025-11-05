@@ -63,6 +63,18 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     }
   }, [preSelectedMaintenanceId, stepFormData.selectedMaintenance, selectMaintenance]);
 
+  // Sélectionner automatiquement un pack par défaut uniquement si on arrive via URL directe
+  useEffect(() => {
+    if (currentFlow === 'maintenance-selection' && !stepFormData.selectedPack && !preSelectedPackId) {
+      // Sélectionner le pack Pro par défaut seulement si aucun pack n'était pré-sélectionné
+      const defaultPack = PACKS.find(p => p.id === 'pack-pro') || PACKS[1]; // Pack Pro ou second pack
+      if (defaultPack) {
+        console.log('Auto-selecting default pack (no preselection):', defaultPack.title);
+        selectPack(defaultPack);
+      }
+    }
+  }, [currentFlow, stepFormData.selectedPack, selectPack, preSelectedPackId]);
+
 
   // Finaliser la commande
   const [emailSent, setEmailSent] = useState(false);
@@ -72,6 +84,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
 
 
   const handleCompleteOrder = async () => {
+    console.log('🚀 Début handleCompleteOrder');
     setSending(true);
     setEmailResult(null);
     try {
@@ -81,6 +94,14 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
       const formData = stepFormData.formData;
       const total = calculateTotal();
       const adminEmail = "contact@lapetitevitrine.com";
+      
+      console.log('📋 Données commande:', { 
+        pack: pack?.title, 
+        maintenance: maintenance?.title, 
+        email: formData.email,
+        total 
+      });
+      
       if (pack && maintenance && formData.email) {
         // Préparation du FormData pour l'envoi de fichiers en pièce jointe
         const attachmentInfos: { cid: string; label: string; filename: string }[] = [];
@@ -290,18 +311,37 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
         `;
 
         // Envoi email client avec fichiers en PJ
-        await fetch('/api/send-order-recap', {
+        console.log('📤 Envoi email client...', formData.email);
+        const clientResponse = await fetch('http://localhost:3001/api/send-order-recap', {
           method: 'POST',
           body: buildFormData(formData.email, 'Votre récapitulatif de commande - La Petite Vitrine', htmlClient),
         });
+        
+        if (!clientResponse.ok) {
+          console.error('❌ Erreur envoi email client:', clientResponse.status, clientResponse.statusText);
+          const errorText = await clientResponse.text();
+          console.error('❌ Détails erreur client:', errorText);
+          throw new Error(`Erreur envoi email client: ${clientResponse.status}`);
+        }
+        console.log('✅ Email client envoyé avec succès');
 
         // Envoi email admin avec fichiers en PJ
-        await fetch('/api/send-order-recap', {
+        console.log('📤 Envoi email admin...', adminEmail);
+        const adminResponse = await fetch('http://localhost:3001/api/send-order-recap', {
           method: 'POST',
           body: buildFormData(adminEmail, 'Nouvelle commande reçue - La Petite Vitrine', htmlAdmin),
         });
+        
+        if (!adminResponse.ok) {
+          console.error('❌ Erreur envoi email admin:', adminResponse.status, adminResponse.statusText);
+          const errorText = await adminResponse.text();
+          console.error('❌ Détails erreur admin:', errorText);
+          throw new Error(`Erreur envoi email admin: ${adminResponse.status}`);
+        }
+        console.log('✅ Email admin envoyé avec succès');
 
         setEmailSent(true);
+        setEmailResult('Emails envoyés avec succès !');
       } else {
         setEmailResult('Erreur : données de commande incomplètes.');
       }
@@ -312,11 +352,6 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     } finally {
       setSending(false);
     }
-  };
-
-  // Navigation entre les étapes
-  const handlePackSelected = () => {
-    setCurrentFlow('maintenance-selection');
   };
 
   const handleFormCompleted = async () => {
@@ -418,16 +453,46 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
             {currentFlow === 'pack-selection' && (
               <PackSelector
                 selectedPack={stepFormData.selectedPack}
+                showPackDetails={true} // Réactiver les détails pour permettre un choix éclairé
                 onSelectPack={(pack) => {
-                  console.log('Pack selected:', pack.title);
+                  console.log('Pack selected:', pack.title, '- Saving and redirecting to maintenance');
+                  // SÉLECTIONNER le pack ET rediriger
                   selectPack(pack);
-                  handlePackSelected();
+                  setCurrentFlow('maintenance-selection');
                 }}
               />
             )}
 
             {currentFlow === 'maintenance-selection' && (
               <>
+                {/* Section Pack sélectionné */}
+                {stepFormData.selectedPack && (
+                  <Card className="mb-8 bg-amber-50 border-amber-200">
+                    <CardHeader className="pb-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-blue-gray900">Pack sélectionné</h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentFlow('pack-selection')}
+                          className="text-amber-700 border-amber-300 hover:bg-amber-100"
+                        >
+                          Changer de pack
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium text-blue-gray900">{stepFormData.selectedPack.title}</h4>
+                          <p className="text-sm text-blue-gray600 mt-1">{stepFormData.selectedPack.description}</p>
+                        </div>
+                        <span className="font-bold text-amber-900 text-lg">{stepFormData.selectedPack.price}€</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
                 <MaintenanceSelector
                   maintenanceOptions={MAINTENANCE_OPTIONS}
                   selectedMaintenance={stepFormData.selectedMaintenance ?? null}

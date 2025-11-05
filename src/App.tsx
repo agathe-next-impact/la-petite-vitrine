@@ -11,7 +11,10 @@ import EmailTestPage from './pages/email-test';
 function App() {
   return (
       <div className="w-full overflow-x-hidden">
-        <Router>
+        <Router future={{ 
+          v7_startTransition: true,
+          v7_relativeSplatPath: true 
+        }}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/commande" element={<EcommercePage />} />

@@ -1,5 +1,5 @@
 import { CheckIcon } from "lucide-react";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "../../../../components/ui/card";
 import { AnimatedSection } from "../../../../components/ui/animated-section";
 import { StaggeredContainer } from "../../../../components/ui/staggered-container";
@@ -7,9 +7,7 @@ import { cn } from "../../../../lib/utils";
 import StyledWrapper from "../../../../components/ui/button-ui";
 
 export const ProductsSection = (): JSX.Element => {
-  const [selectedPack, setSelectedPack] = useState<any>(null);
-  const [selectedSocialOptions, setSelectedSocialOptions] = useState<any[]>([]);
-  const [showMaintenanceSelector, setShowMaintenanceSelector] = useState(false);
+  const navigate = useNavigate();
 
   // La logique de maintenanceId est supprimée, on utilise selectedSocialOptions pour la sélection.
 
@@ -83,28 +81,9 @@ export const ProductsSection = (): JSX.Element => {
 
   // La logique de maintenanceId et de maintenance par défaut est supprimée.
 
-  const handlePackSelect = (pack: typeof mainPacks[number]) => {
-    setSelectedPack(pack);
-    setShowMaintenanceSelector(false); // Reset l'affichage
-    setSelectedSocialOptions([]); // Reset des options
-  };
-
-  const handleCheckout = async () => {
-    if (!selectedPack) return;
-
-    // Construire l'URL avec les sélections
-    const params = new URLSearchParams({
-      direct: 'form',
-      pack: selectedPack.id
-    });
-    
-    if (selectedSocialOptions.length > 0) {
-      // Pour l'instant, on ne passe que la première option pour compatibilité
-      params.append('maintenance', selectedSocialOptions[0].id);
-    }
-    
-    // Rediriger vers le formulaire avec les sélections
-    window.location.href = `/commande?${params.toString()}`;
+  const handlePackSelect = (packId: string) => {
+    // Redirection directe vers l'étape de maintenance avec l'ID du pack
+    navigate(`/commande?step=maintenance&packId=${packId}`);
   };
 
   const decorativeShapes = [
@@ -163,22 +142,14 @@ export const ProductsSection = (): JSX.Element => {
                 className={cn(
                   "basis-1/3 h-max flex flex-col bg-orange-50 overflow-hidden rounded-[20px] transition-all duration-500 group relative cursor-pointer",
                   pack.bgColor,
-                  "border border-solid",
-                  selectedPack?.id === pack.id
-                    ? "border-amber-400 scale-105 shadow-shadow-dark-XL"
-                    : "border-white hover:scale-105"
+                  "border border-solid border-white hover:scale-105"
                 )}
-                onClick={() => handlePackSelect(pack)}
+                onClick={() => handlePackSelect(pack.id)}
               >
                 <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-20 flex items-center gap-1">
                   <CheckIcon className="w-3 h-3" />
                   Satisfait ou remboursé
                 </div>
-                {selectedPack?.id === pack.id && (
-                  <div className="absolute top-3 right-3 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center">
-                    <CheckIcon className="w-4 h-4 text-blue-gray900" />
-                  </div>
-                )}
                 <div
                   className="absolute w-full h-[170px] md:h-[180px] top-0 left-0 bg-cover bg-center opacity-15"
                   style={{
@@ -247,7 +218,7 @@ export const ProductsSection = (): JSX.Element => {
                     ))}
                   </div>
                   <div className="h-16 flex-1 flex items-center justify-center">
-                    <a href={`/commande?pack=${pack.id}`} className="w-full">
+                    <a href={`/commande?step=maintenance&packId=${pack.id}`} className="w-full">
                       <StyledWrapper>
                         Commander ce pack
                       </StyledWrapper>
@@ -258,25 +229,6 @@ export const ProductsSection = (): JSX.Element => {
             ))}
             </div>
           </StaggeredContainer>
-          {showMaintenanceSelector && selectedPack && (
-            <div id="social-options-section" className="scroll-mt-8">
-              <AnimatedSection animation="slideUp" delay={300}>
-                <div>
-                  <div className="flex flex-col lg:flex-row gap-8">
-                    <div className="basis-0 lg:basis-1/2 flex items-center justify-center">
-                      <button
-                        onClick={handleCheckout}
-                        disabled={!selectedPack}
-                        className="px-6 py-3 bg-amber-400 text-blue-gray900 rounded-lg font-bold shadow hover:bg-amber-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Commencer maintenant
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </AnimatedSection>
-            </div>
-          )}
         </div>
       </div>
     </section>

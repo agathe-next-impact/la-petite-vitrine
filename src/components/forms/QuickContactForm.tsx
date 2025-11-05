@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ConfirmationPopup } from '../ui/confirmation-popup';
 
 interface QuickContactFormProps {
   title: string;
@@ -16,6 +17,7 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
     }
     setError('');
     try {
-      const res = await fetch('/api/add-contact', {
+      const res = await fetch('http://localhost:3001/api/add-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, contact, email }),
@@ -39,49 +41,108 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
       }
 
       setSent(true);
+      setShowPopup(true);
     } catch (err) {
       console.error('Erreur formulaire:', err);
       setError("Une erreur est survenue. Veuillez réessayer plus tard.");
     }
   };
 
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    // Reset du formulaire
+    setFirstName('');
+    setContact('');
+    setEmail('');
+    setSent(false);
+    setError('');
+  };
+
   if (sent) {
-    return <p className="py-2 px-4 text-green-700 font-medium">Merci, nous vous contacterons rapidement.</p>;
+    return (
+      <>
+        <form className={`bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-md space-y-3 ${className}`}>
+          <p className="font-semibold text-blue-gray900">{title}</p>
+          <div className="flex-wrap flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="Prénom"
+              value=""
+              className="flex-1 px-3 py-2 border border-green-300 bg-green-50 rounded-xl"
+              disabled
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value=""
+              className="flex-1 px-3 py-2 border border-green-300 bg-green-50 rounded-xl"
+              disabled
+            />
+            <input
+              type="tel"
+              placeholder="Téléphone"
+              value=""
+              className="flex-1 px-3 py-2 border border-green-300 bg-green-50 rounded-xl"
+              disabled
+            />
+            <button
+              type="button"
+              onClick={handleClosePopup}
+              className="px-4 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 whitespace-nowrap"
+            >
+              Nouveau contact
+            </button>
+          </div>
+        </form>
+        <ConfirmationPopup
+          isVisible={showPopup}
+          onClose={handleClosePopup}
+          firstName={firstName}
+        />
+      </>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-md space-y-3 ${className}`}>
-      <p className="font-semibold text-blue-gray900">{title}</p>
-      <div className="flex-wrap flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="Prénom"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
-        />
-        <input
-          type="tel"
-          placeholder="Téléphone"
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-          className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-amber-600 text-white rounded-xl shadow hover:bg-amber-700 whitespace-nowrap"
-        >
-          {buttonText}
-        </button>
-      </div>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </form>
+    <>
+      <form onSubmit={handleSubmit} className={`bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-md space-y-3 ${className}`}>
+        <p className="font-semibold text-blue-gray900">{title}</p>
+        <div className="flex-wrap flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Prénom"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
+          />
+          <input
+            type="tel"
+            placeholder="Téléphone"
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
+            className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-amber-600 text-white rounded-xl shadow hover:bg-amber-700 whitespace-nowrap"
+          >
+            {buttonText}
+          </button>
+        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </form>
+      <ConfirmationPopup
+        isVisible={showPopup}
+        onClose={handleClosePopup}
+        firstName={firstName}
+      />
+    </>
   );
 };

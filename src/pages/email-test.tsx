@@ -15,8 +15,8 @@ export default function EmailTestPage() {
     setResult(null);
     setLogs((prev) => [...prev, "⏳ Démarrage de l'envoi..."]);
     try {
-      setLogs((prev) => [...prev, "📡 Requête POST vers /api/send-order-recap"]);
-      const res = await fetch("/api/send-order-recap", {
+      setLogs((prev) => [...prev, "📡 Requête POST vers http://localhost:3001/api/send-order-recap"]);
+      const res = await fetch("http://localhost:3001/api/send-order-recap", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

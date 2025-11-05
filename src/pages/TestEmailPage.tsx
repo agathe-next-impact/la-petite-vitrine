@@ -19,7 +19,7 @@ export const TestEmailPage: React.FC = () => {
         `[${new Date().toLocaleTimeString()}] 📤 Préparation de la requête API`,
         `Données envoyées: email="${email}", subject="${subject}", message="${message}"`
       ]);
-      const response = await fetch('/api/test-email', {
+      const response = await fetch('http://localhost:3001/api/test-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, subject, message })

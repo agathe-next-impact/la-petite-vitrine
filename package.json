@@ -4,8 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:api\"",
+    "dev:vite": "vite",
+    "dev:api": "node server.js",
     "build": "vite build",
+    "start": "next start",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
@@ -30,7 +33,9 @@
     "framer-motion": "^10.18.0",
     "lucide-react": "^0.294.0",
     "motion": "^12.23.0",
+    "multer": "^2.0.2",
     "next": "^15.4.2",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
