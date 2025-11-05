@@ -270,19 +270,32 @@ app.post('/api/send-order-recap', upload.fields([
     
     // Préparation des pièces jointes
     const attachments = [];
+    console.log('📁 Fichiers reçus:', req.files);
     if (req.files) {
       ['visualFiles', 'textFiles', 'otherFiles'].forEach(fieldName => {
         if (req.files[fieldName]) {
+          console.log(`📎 ${fieldName}:`, req.files[fieldName].map(f => ({ 
+            name: f.originalname, 
+            size: f.size, 
+            type: f.mimetype 
+          })));
           req.files[fieldName].forEach((file, index) => {
+            console.log(`📎 Ajout fichier ${fieldName}-${index}: ${file.originalname} (${file.mimetype})`);
             attachments.push({
               filename: file.originalname,
               content: file.buffer,
               cid: `${fieldName}-${index}` // Pour référence dans le HTML
             });
           });
+        } else {
+          console.log(`📂 Aucun fichier dans ${fieldName}`);
         }
       });
+    } else {
+      console.log('📂 Aucun fichier reçu dans req.files');
     }
+    
+    console.log(`📎 Total attachments préparés: ${attachments.length}`);
 
     await mailer.sendMail({
       from: `"La Petite Vitrine" <${process.env.SMTP_USER}>`,

@@ -130,6 +130,11 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
             fd.append('cids', JSON.stringify(cidList));
           }
 
+          console.log('📎 Fichiers à envoyer:');
+          console.log('  - visualFiles:', visualFiles.map(f => f.name));
+          console.log('  - textFiles:', textFiles.map(f => f.name));
+          console.log('  - otherFiles:', otherFiles.map(f => f.name));
+
           visualFiles.forEach((f) => fd.append('visualFiles', f, f.name));
           textFiles.forEach((f) => fd.append('textFiles', f, f.name));
           otherFiles.forEach((f) => fd.append('otherFiles', f, f.name));
