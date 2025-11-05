@@ -184,30 +184,28 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                   Merci pour votre confiance !
                 </p>
                 <p style="font-size:1rem;color:#222;margin:0;">
-                  Prenez dès à présent rendez-vous en ligne pour nous faire part de vos attentes précises. </br>
+                  Prenez dès à présent contact avec notre équipe pour nous faire part de vos attentes précises. </br>
                   C'est à l'issue de cet échange que nous vous enverrons un message de confirmation de commande avec un lien pour procéder au paiement en ligne.
                   Nous commencerons alors la création de votre site internet.
                 </p>
-                <div style="text-align:center;margin:24px 0;">
-                  <a
-                    href="mailto:contact@lapetitevitrine.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style="
-                      display:inline-block;
-                      background: #D97706;
-                      color: #fff;
-                      font-weight: 600;
-                      font-size: 1.1rem;
-                      padding: 14px 36px;
-                      border-radius: 32px;
-                      text-decoration: none;
-                      box-shadow: 0 2px 8px 0 rgba(46,102,193,0.08);
-                      transition: background 0.2s;
-                    "
-                  >
-                    📅 Réserver mon rendez-vous
-                  </a>
+                <div style="background:#F0F9FF;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #0EA5E9;">
+                  <h3 style="color:#2E66C1;font-size:1.2rem;margin:0 0 16px 0;font-weight:600;text-align:center;">
+                    💬 Contactez-nous directement
+                  </h3>
+                  <div style="text-align:center;">
+                    <div style="margin-bottom:12px;">
+                      <strong style="color:#2E66C1;">📧 Email :</strong>
+                      <a href="mailto:contact@lapetitevitrine.com" style="color:#D97706;text-decoration:none;margin-left:8px;">
+                        contact@lapetitevitrine.com
+                      </a>
+                    </div>
+                    <div>
+                      <strong style="color:#2E66C1;">📞 Téléphone :</strong>
+                      <a href="tel:0673981638" style="color:#D97706;text-decoration:none;margin-left:8px;">
+                        06 73 98 16 38
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="recap">
