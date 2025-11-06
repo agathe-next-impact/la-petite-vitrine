@@ -247,7 +247,11 @@ app.post('/api/add-contact', async (req, res) => {
 
 // Route pour les commandes (emails de récapitulatif)
 app.post('/api/send-order-recap', async (req, res) => {
-  console.log('📨 Réception récapitulatif commande:', { body: req.body });
+  console.log('📨 Réception récapitulatif commande:', { 
+    to: req.body.to,
+    subject: req.body.subject,
+    htmlLength: req.body.htmlContent?.length || 0
+  });
   
   const { to, subject, htmlContent } = req.body;
 
@@ -262,19 +266,38 @@ app.post('/api/send-order-recap', async (req, res) => {
   }
 
   try {
-    console.log('📤 Envoi email récapitulatif...');
+    console.log('📤 Envoi email récapitulatif vers:', to);
+    
+    // Validation basique de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      console.log('❌ Format email invalide:', to);
+      return res.status(400).json({ message: 'Format email invalide' });
+    }
     
     const result = await mailer.sendMail({
-      from: process.env.SMTP_FROM,
+      from: `"La Petite Vitrine" <${process.env.SMTP_FROM}>`,
       to: to,
       subject: subject,
       html: htmlContent,
     });
 
-    console.log('✅ Email récapitulatif envoyé avec succès!', result.messageId);
+    console.log('✅ Email récapitulatif envoyé avec succès vers', to, '- ID:', result.messageId);
+    console.log('📋 Informations de livraison:', {
+      accepted: result.accepted,
+      rejected: result.rejected,
+      pending: result.pending,
+      response: result.response
+    });
+    
     res.json({ 
       message: 'Email envoyé avec succès', 
-      messageId: result.messageId 
+      messageId: result.messageId,
+      recipient: to,
+      deliveryInfo: {
+        accepted: result.accepted,
+        rejected: result.rejected
+      }
     });
 
   } catch (error) {

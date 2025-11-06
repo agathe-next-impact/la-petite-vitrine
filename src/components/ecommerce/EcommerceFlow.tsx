@@ -260,25 +260,45 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
 
         // Envoi email client
         console.log('📤 Envoi email client...', formData.email);
-        const clientResponse = await fetch('http://localhost:3001/api/send-order-recap', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            to: formData.email,
-            subject: 'Votre récapitulatif de commande - La Petite Vitrine',
-            htmlContent: htmlClient,
-          }),
+        console.log('📋 Email client data:', {
+          to: formData.email,
+          subject: 'Votre récapitulatif de commande - La Petite Vitrine',
+          htmlLength: htmlClient.length
         });
         
-        if (!clientResponse.ok) {
-          console.error('❌ Erreur envoi email client:', clientResponse.status, clientResponse.statusText);
-          const errorText = await clientResponse.text();
-          console.error('❌ Détails erreur client:', errorText);
-          throw new Error(`Erreur envoi email client: ${clientResponse.status}`);
+        // Vérification si l'email client est sûr (pas de domaines temporaires/suspects)
+        const emailDomain = formData.email.split('@')[1]?.toLowerCase();
+        const suspiciousDomains = ['10minutemail', 'guerrillamail', 'mailinator', 'tempmail'];
+        const isEmailSafe = emailDomain && !suspiciousDomains.some(domain => emailDomain.includes(domain));
+        
+        if (!isEmailSafe) {
+          console.warn('⚠️ Email client non envoyé - domaine suspect ou invalide:', emailDomain);
+        } else {
+          const clientResponse = await fetch('http://localhost:3001/api/send-order-recap', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              to: formData.email,
+              subject: 'Votre récapitulatif de commande - La Petite Vitrine',
+              htmlContent: htmlClient,
+            }),
+          });
+          
+          console.log('📬 Client response status:', clientResponse.status);
+          console.log('📬 Client response headers:', Object.fromEntries(clientResponse.headers.entries()));
+          
+          if (!clientResponse.ok) {
+            console.error('❌ Erreur envoi email client:', clientResponse.status, clientResponse.statusText);
+            const errorText = await clientResponse.text();
+            console.error('❌ Détails erreur client:', errorText);
+            throw new Error(`Erreur envoi email client: ${clientResponse.status}`);
+          }
+          
+          const clientResult = await clientResponse.json();
+          console.log('✅ Email client envoyé avec succès:', clientResult);
         }
-        console.log('✅ Email client envoyé avec succès');
 
         // Envoi email admin
         console.log('📤 Envoi email admin...', adminEmail);

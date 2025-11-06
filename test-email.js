@@ -2,17 +2,17 @@ import fetch from 'node-fetch';
 
 async function testEmail() {
   try {
-    console.log('🧪 Test envoi email...');
+    console.log('🧪 Test envoi email de commande...');
     
-    const response = await fetch('http://localhost:3001/api/add-contact', {
+    const response = await fetch('http://localhost:3001/api/send-order-recap', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        firstName: 'Test',
-        contact: '0123456789',
-        email: 'test@example.com'
+        to: 'contact@lapetitevitrine.com',
+        subject: 'Test email de commande',
+        htmlContent: '<h1>Test</h1><p>Ceci est un test d\'email de commande</p>'
       })
     });
 
