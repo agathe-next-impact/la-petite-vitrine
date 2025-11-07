@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-module.exports = async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Méthode non autorisée' });
   }
@@ -34,6 +34,7 @@ module.exports = async function handler(req, res) {
     // Test de vérification de la connexion
     const verified = await mailer.verify();
     
+    res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
       status: 'SUCCESS',
       message: 'Mailer testé avec succès',
@@ -44,6 +45,7 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('❌ Erreur test mailer:', error);
+    res.setHeader('Content-Type', 'application/json');
     return res.status(500).json({
       status: 'ERROR',
       message: 'Erreur lors du test du mailer',

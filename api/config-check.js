@@ -1,5 +1,5 @@
 // API de diagnostic pour vérifier la configuration
-module.exports = async function handler(req, res) {
+module.exports = (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Méthode non autorisée' });
   }
@@ -16,6 +16,7 @@ module.exports = async function handler(req, res) {
 
   const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
   
+  res.setHeader('Content-Type', 'application/json');
   return res.status(200).json({
     status: missingVars.length === 0 ? 'OK' : 'ERROR',
     message: missingVars.length === 0 
