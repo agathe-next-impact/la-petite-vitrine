@@ -17,10 +17,20 @@ type FlowStep = 'pack-selection' | 'maintenance-selection' | 'form' | 'summary';
 
 // Fonction helper pour scroller vers le haut en douceur
 const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+  // Double vérification pour s'assurer que le scroll fonctionne
+  const scrollToTopImmediate = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+  
+  // Scroll immédiat
+  scrollToTopImmediate();
+  
+  // Scroll de sécurité après un délai
+  setTimeout(scrollToTopImmediate, 100);
+  setTimeout(scrollToTopImmediate, 300);
 };
 
 interface EcommerceFlowProps {
@@ -84,6 +94,14 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     }
   }, [currentFlow, stepFormData.selectedPack, selectPack, preSelectedPackId]);
 
+  // Effet pour scroller vers le haut quand on arrive sur la sélection de maintenance
+  useEffect(() => {
+    if (currentFlow === 'maintenance-selection') {
+      console.log('🔄 Passage à maintenance-selection, scroll vers le haut');
+      setTimeout(() => scrollToTop(), 100);
+    }
+  }, [currentFlow]);
+
 
   // Finaliser la commande
   const [emailSent, setEmailSent] = useState(false);
@@ -93,7 +111,8 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
   // Fonction helper pour changer de flow avec scroll vers le haut
   const changeFlowWithScroll = (newFlow: FlowStep) => {
     setCurrentFlow(newFlow);
-    setTimeout(() => scrollToTop(), 100);
+    // Délai plus long pour s'assurer que le DOM est mis à jour
+    setTimeout(() => scrollToTop(), 200);
   };
 
 

@@ -4,10 +4,20 @@ import { DEFAULT_FORM_STEPS } from '../data/ecommerce-data';
 
 // Fonction helper pour scroller vers le haut en douceur
 const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+  // Double vérification pour s'assurer que le scroll fonctionne
+  const scrollToTopImmediate = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+  
+  // Scroll immédiat
+  scrollToTopImmediate();
+  
+  // Scroll de sécurité après un délai
+  setTimeout(scrollToTopImmediate, 100);
+  setTimeout(scrollToTopImmediate, 300);
 };
 
 export const useEcommerce = () => {
