@@ -51,9 +51,20 @@ if (missingEnvVars.length > 0) {
         rejectUnauthorized: false
       }
     });
+    
+    // Test de la connexion
+    mailer.verify((error, success) => {
+      if (error) {
+        console.error('❌ Erreur vérification SMTP:', error);
+      } else {
+        console.log('✅ Connexion SMTP vérifiée avec succès');
+      }
+    });
+    
     console.log('✅ Mailer configuré avec succès');
   } catch (error) {
     console.error('❌ Erreur configuration mailer:', error);
+    mailer = null;
   }
 }
 
