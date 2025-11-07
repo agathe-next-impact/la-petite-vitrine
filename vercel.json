@@ -1,19 +1,37 @@
 {
-  "headers": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/assets/(.*).js",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
-      ]
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/((?!assets/).*)",
-      "destination": "/index.html"
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "Content-Type": "application/javascript"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "server.js": {
+      "maxDuration": 30
+    }
+  }
 }

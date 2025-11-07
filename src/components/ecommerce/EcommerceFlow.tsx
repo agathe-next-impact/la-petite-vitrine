@@ -10,9 +10,18 @@ import { ArrowLeftIcon, HomeIcon } from 'lucide-react';
 import { PACKS, MAINTENANCE_OPTIONS } from '../../data/ecommerce-data';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react'; // Ajoute cette import en haut si tu utilises Lucide ou adapte selon ton design system
+import { Loader2 } from 'lucide-react';
+import { API_CONFIG } from '../../lib/api-config';
 
 type FlowStep = 'pack-selection' | 'maintenance-selection' | 'form' | 'summary';
+
+// Fonction helper pour scroller vers le haut en douceur
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
 
 interface EcommerceFlowProps {
   initialFlow?: FlowStep;
@@ -80,6 +89,12 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
   const [emailSent, setEmailSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [emailResult, setEmailResult] = useState<string | null>(null);
+
+  // Fonction helper pour changer de flow avec scroll vers le haut
+  const changeFlowWithScroll = (newFlow: FlowStep) => {
+    setCurrentFlow(newFlow);
+    setTimeout(() => scrollToTop(), 100);
+  };
 
 
 
@@ -258,6 +273,9 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
           </html>
         `;
 
+        // Configuration API (détecte automatiquement www.lapetitevitrine.com)
+        const API_BASE_URL = API_CONFIG.BASE_URL;
+
         // Envoi email client
         console.log('📤 Envoi email client...', formData.email);
         console.log('📋 Email client data:', {
@@ -274,7 +292,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
         if (!isEmailSafe) {
           console.warn('⚠️ Email client non envoyé - domaine suspect ou invalide:', emailDomain);
         } else {
-          const clientResponse = await fetch('http://localhost:3001/api/send-order-recap', {
+          const clientResponse = await fetch(`${API_BASE_URL}/api/send-order-recap`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -302,7 +320,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
 
         // Envoi email admin
         console.log('📤 Envoi email admin...', adminEmail);
-        const adminResponse = await fetch('http://localhost:3001/api/send-order-recap', {
+        const adminResponse = await fetch(`${API_BASE_URL}/api/send-order-recap`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -345,13 +363,13 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
   const goBack = () => {
     switch (currentFlow) {
       case 'maintenance-selection':
-        setCurrentFlow('pack-selection');
+        changeFlowWithScroll('pack-selection');
         break;
       case 'form':
-        setCurrentFlow('maintenance-selection');
+        changeFlowWithScroll('maintenance-selection');
         break;
       case 'summary':
-        setCurrentFlow('form');
+        changeFlowWithScroll('form');
         break;
       default:
         break;
@@ -434,7 +452,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                   console.log('Pack selected:', pack.title, '- Saving and redirecting to maintenance');
                   // SÉLECTIONNER le pack ET rediriger
                   selectPack(pack);
-                  setCurrentFlow('maintenance-selection');
+                  changeFlowWithScroll('maintenance-selection');
                 }}
               />
             )}
@@ -450,7 +468,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setCurrentFlow('pack-selection')}
+                          onClick={() => changeFlowWithScroll('pack-selection')}
                           className="text-amber-700 border-amber-300 hover:bg-amber-100"
                         >
                           Changer de pack
@@ -479,7 +497,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                   <Button
                     onClick={() => {
                       console.log('Maintenance continue button clicked');
-                      setCurrentFlow('form');
+                      changeFlowWithScroll('form');
                     }}
                     disabled={!stepFormData.selectedMaintenance}
                     className="bg-amber-600 hover:bg-amber-700 text-white font-medium px-8 py-3 rounded-xl shadow-md"

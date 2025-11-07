@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ConfirmationPopup } from '../ui/confirmation-popup';
+import { API_CONFIG } from '../../lib/api-config';
 
 interface QuickContactFormProps {
   title: string;
@@ -27,7 +28,8 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
     }
     setError('');
     try {
-      const res = await fetch('http://localhost:3001/api/add-contact', {
+      // Configuration API (détecte automatiquement www.lapetitevitrine.com)
+      const res = await fetch(`${API_CONFIG.BASE_URL}/api/add-contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, contact, email }),

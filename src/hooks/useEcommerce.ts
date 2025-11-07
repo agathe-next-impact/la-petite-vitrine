@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { Pack, MaintenanceOption, StepFormData, OrderData, Customer } from '../types/ecommerce';
 import { DEFAULT_FORM_STEPS } from '../data/ecommerce-data';
 
+// Fonction helper pour scroller vers le haut en douceur
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+
 export const useEcommerce = () => {
   const [stepFormData, setStepFormData] = useState<StepFormData>({
     currentStep: 0,
@@ -83,6 +91,8 @@ export const useEcommerce = () => {
       ...prev,
       currentStep: stepIndex
     }));
+    // Scroll vers le haut pour l'affichage mobile
+    setTimeout(() => scrollToTop(), 100);
   };
 
   const nextStep = () => {
@@ -90,6 +100,8 @@ export const useEcommerce = () => {
       ...prev,
       currentStep: Math.min(prev.currentStep + 1, prev.steps.length - 1)
     }));
+    // Scroll vers le haut pour l'affichage mobile
+    setTimeout(() => scrollToTop(), 100);
   };
 
   const prevStep = () => {
@@ -97,6 +109,8 @@ export const useEcommerce = () => {
       ...prev,
       currentStep: Math.max(prev.currentStep - 1, 0)
     }));
+    // Scroll vers le haut pour l'affichage mobile
+    setTimeout(() => scrollToTop(), 100);
   };
 
   // Calculer le prix total

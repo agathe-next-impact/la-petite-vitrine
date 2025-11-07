@@ -3,16 +3,33 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
+import path from 'path';
 
 dotenv.config();
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Middleware
-app.use(cors());
+// Middleware CORS adapté pour la production
+const corsOptions = {
+  origin: isProduction 
+    ? [
+        'https://lapetitevitrine.com', 
+        'https://www.lapetitevitrine.com',
+        // Support pour d'autres variantes si nécessaire
+        'http://lapetitevitrine.com',
+        'http://www.lapetitevitrine.com'
+      ]
+    : ['http://localhost:5173', 'http://localhost:5174'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Ajout pour les données de formulaire
+app.use(express.urlencoded({ extended: true }));
 
 // Configuration multer pour les uploads de fichiers
 const upload = multer({ 
@@ -335,9 +352,32 @@ app.post('/api/test-email', async (req, res) => {
   }
 });
 
+// Route de health check pour la production
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    emailConfigured: !!mailer
+  });
+});
+
+// Route pour servir les fichiers statiques en production
+if (isProduction) {
+  app.use(express.static('dist'));
+  
+  // Fallback pour les routes SPA
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api/')) {
+      res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+    }
+  });
+}
+
 const server = app.listen(port, () => {
-  console.log(`🚀 Serveur API démarré sur http://localhost:${port}`);
+  console.log(`🚀 Serveur API démarré sur ${isProduction ? 'production' : 'http://localhost'}:${port}`);
   console.log(`📧 Mailer configuré avec: ${process.env.SMTP_HOST || 'non configuré'}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('💡 Serveur en attente de requêtes...');
 });
 

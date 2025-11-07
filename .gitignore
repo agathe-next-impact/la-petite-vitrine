@@ -28,4 +28,32 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+.env.staging
+
+# Fichiers de configuration d'environnement spécifiques
 .env.example
+.envrc
+
+# Vercel
+.vercel
+.vercel/*
+.next
+.next/*
+
+# Secrets et configurations sensibles
+*.pem
+*.key
+secrets.json
+config.json
+
+# Logs spécifiques au déploiement
+logs/
+pm2.log
+error.log
+access.log
+
+# Fichiers temporaires de déploiement
+deploy.log
+build.log
