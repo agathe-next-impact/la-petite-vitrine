@@ -1,5 +1,7 @@
-const nodemailer = require('nodemailer');
-const cors = require('cors');
+import { createRequire } from 'module';
+import cors from 'cors';
+
+const require = createRequire(import.meta.url);
 
 // Configuration CORS
 const corsOptions = {
@@ -39,7 +41,8 @@ if (missingEnvVars.length > 0) {
   console.error('❌ Variables d\'environnement manquantes:', missingEnvVars);
 } else {
   try {
-    mailer = nodemailer.createTransporter({
+    const nodemailer = require('nodemailer');
+    mailer = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
       secure: true,
@@ -54,10 +57,11 @@ if (missingEnvVars.length > 0) {
     console.log('✅ Mailer configuré avec succès');
   } catch (error) {
     console.error('❌ Erreur configuration mailer:', error);
+    mailer = null;
   }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Appliquer CORS
   await runCors(req, res, corsMiddleware);
 
@@ -132,4 +136,4 @@ module.exports = async function handler(req, res) {
       error: error.message 
     });
   }
-};
+}

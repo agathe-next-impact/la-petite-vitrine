@@ -1,4 +1,4 @@
-module.exports = (req, res) => {
+export default function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.status(200).json({ 
     status: 'OK', 
@@ -12,4 +12,4 @@ module.exports = (req, res) => {
       SMTP_FROM: process.env.SMTP_FROM ? '✅ Configuré' : '❌ Manquant'
     }
   });
-};
+}
