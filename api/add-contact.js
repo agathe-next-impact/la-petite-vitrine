@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import cors from 'cors';
+const nodemailer = require('nodemailer');
+const cors = require('cors');
 
 // Configuration CORS
 const corsOptions = {
@@ -68,7 +68,7 @@ if (missingEnvVars.length > 0) {
   }
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Appliquer CORS
   await runCors(req, res, corsMiddleware);
 
@@ -305,4 +305,4 @@ export default async function handler(req, res) {
       error: error.message 
     });
   }
-}
+};

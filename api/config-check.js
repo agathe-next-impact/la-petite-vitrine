@@ -1,5 +1,5 @@
 // API de diagnostic pour vérifier la configuration
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Méthode non autorisée' });
   }
@@ -25,4 +25,4 @@ export default async function handler(req, res) {
     missingVars,
     timestamp: new Date().toISOString()
   });
-}
+};

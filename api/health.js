@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
@@ -11,4 +11,4 @@ export default function handler(req, res) {
       SMTP_FROM: process.env.SMTP_FROM ? '✅ Configuré' : '❌ Manquant'
     }
   });
-}
+};
