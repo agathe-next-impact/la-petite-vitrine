@@ -60,6 +60,10 @@ Les routes API sont automatiquement déployées :
 
 ## 🐛 Troubleshooting
 
+### Problème : Build échoué avec "vite: command not found"
+- **Solution** : Vérifier que `vite`, `@vitejs/plugin-react` et `tailwindcss` sont dans `dependencies` (pas `devDependencies`)
+- **Raison** : Vercel n'installe que les `dependencies` pour le build de production
+
 ### Problème : Build échoué
 - Vérifier les logs dans Vercel Dashboard
 - S'assurer que `npm run build` fonctionne en local
