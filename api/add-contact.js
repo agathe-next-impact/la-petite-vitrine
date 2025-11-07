@@ -37,6 +37,10 @@ let mailer;
 const requiredEnvVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
+// Cache simple pour éviter les doublons (en mémoire)
+const recentSubmissions = new Map();
+const DUPLICATE_WINDOW = 30000; // 30 secondes
+
 if (missingEnvVars.length > 0) {
   console.error('❌ Variables d\'environnement manquantes:', missingEnvVars);
 } else {
@@ -90,6 +94,31 @@ export default async function handler(req, res) {
   if (!firstName || !contact || !email) {
     console.log('❌ Champs manquants:', { firstName, contact, email });
     return res.status(400).json({ message: 'Tous les champs sont requis' });
+  }
+
+  // Vérification des doublons
+  const submissionKey = `${email}-${firstName}-${contact}`;
+  const now = Date.now();
+  
+  if (recentSubmissions.has(submissionKey)) {
+    const lastSubmission = recentSubmissions.get(submissionKey);
+    if (now - lastSubmission < DUPLICATE_WINDOW) {
+      console.log('⚠️ Soumission dupliquée détectée, ignorée:', submissionKey);
+      return res.json({ 
+        message: 'Email déjà envoyé récemment',
+        status: 'success' 
+      });
+    }
+  }
+  
+  // Enregistrer cette soumission
+  recentSubmissions.set(submissionKey, now);
+  
+  // Nettoyer les anciennes entrées
+  for (const [key, timestamp] of recentSubmissions.entries()) {
+    if (now - timestamp > DUPLICATE_WINDOW) {
+      recentSubmissions.delete(key);
+    }
   }
 
   if (!mailer || missingEnvVars.length > 0) {

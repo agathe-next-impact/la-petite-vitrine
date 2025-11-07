@@ -19,14 +19,24 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [showPopup, setShowPopup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting) {
+      console.log('⚠️ Soumission déjà en cours, ignorée');
+      return;
+    }
+    
     if (!firstName || !contact || !email) {
       setError('Veuillez remplir tous les champs');
       return;
     }
+    
     setError('');
+    setIsSubmitting(true);
+    
     try {
       // Configuration API (détecte automatiquement www.lapetitevitrine.com)
       const res = await fetch(`${API_CONFIG.BASE_URL}/api/add-contact`, {
@@ -47,6 +57,8 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
     } catch (err) {
       console.error('Erreur formulaire:', err);
       setError("Une erreur est survenue. Veuillez réessayer plus tard.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -133,9 +145,14 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-amber-600 text-white rounded-xl shadow hover:bg-amber-700 whitespace-nowrap"
+            disabled={isSubmitting}
+            className={`px-4 py-2 rounded-xl shadow whitespace-nowrap ${
+              isSubmitting 
+                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                : 'bg-amber-600 text-white hover:bg-amber-700'
+            }`}
           >
-            {buttonText}
+            {isSubmitting ? 'Envoi...' : buttonText}
           </button>
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
