@@ -42,6 +42,7 @@ NODE_ENV=production
 
 Les routes API sont automatiquement déployées :
 - `/api/health` - Vérification du statut
+- `/api/config-check` - Diagnostic des variables d'environnement
 - `/api/add-contact` - Formulaire de contact
 - `/api/send-order-recap` - Emails de commande
 
@@ -50,6 +51,7 @@ Les routes API sont automatiquement déployées :
 ### URLs à tester :
 - **Application** : `https://votre-app.vercel.app`
 - **Health Check** : `https://votre-app.vercel.app/api/health`
+- **Config Check** : `https://votre-app.vercel.app/api/config-check`
 - **Formulaire** : `https://votre-app.vercel.app/ecommerce`
 
 ### Vérifications :
@@ -72,9 +74,12 @@ Les routes API sont automatiquement déployées :
 - Vérifier les variables d'environnement
 - Tester `/api/health` pour voir le statut
 
-### Problème : Emails non envoyés
-- Vérifier les variables SMTP dans Vercel
-- Consulter les logs des fonctions
+### Problème : Emails non envoyés ou "Mailer non configuré"
+- **Vérifier** `/api/config-check` pour voir les variables manquantes
+- **Variables SMTP** dans Vercel Dashboard > Settings > Environment Variables
+- **Important** : Ajouter `SMTP_FROM=contact@lapetitevitrine.com` si manquant
+- **Redéployer** après ajout de variables (automatic ou manual)
+- **Consulter** les logs des fonctions dans Vercel Dashboard
 
 ## 🔄 Déploiement Automatique
 

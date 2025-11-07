@@ -32,22 +32,29 @@ const corsMiddleware = cors(corsOptions);
 
 // Configuration du mailer
 let mailer;
-try {
-  mailer = nodemailer.createTransporter({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
-  console.log('✅ Mailer configuré avec succès');
-} catch (error) {
-  console.error('❌ Erreur configuration mailer:', error);
+const requiredEnvVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Variables d\'environnement manquantes:', missingEnvVars);
+} else {
+  try {
+    mailer = nodemailer.createTransporter({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+    console.log('✅ Mailer configuré avec succès');
+  } catch (error) {
+    console.error('❌ Erreur configuration mailer:', error);
+  }
 }
 
 export default async function handler(req, res) {
@@ -75,9 +82,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Champs manquants (to, subject, htmlContent requis)' });
   }
 
-  if (!mailer) {
-    console.log('❌ Mailer non configuré');
-    return res.status(500).json({ message: 'Mailer non configuré' });
+  if (!mailer || missingEnvVars.length > 0) {
+    console.log('❌ Mailer non configuré - Variables manquantes:', missingEnvVars);
+    return res.status(500).json({ 
+      message: 'Mailer non configuré', 
+      missingVars: missingEnvVars 
+    });
   }
 
   try {
