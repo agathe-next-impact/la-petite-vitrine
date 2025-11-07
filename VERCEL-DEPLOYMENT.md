@@ -1,95 +1,88 @@
-# Déploiement Vercel - La Petite Vitrine
+# Guide de Déploiement Vercel - La Petite Vitrine
 
-## Variables d'environnement à configurer dans Vercel
+## 🚀 Déploiement Automatique
 
-### 📧 Configuration SMTP
+### 1. Connecter le Repository à Vercel
+
+1. **Aller sur [vercel.com](https://vercel.com)**
+2. **Se connecter avec GitHub**
+3. **Importer le projet** :
+   - Cliquer "New Project"
+   - Sélectionner le repository `agat-dev/la-petite-vitrine-3`
+   - Cliquer "Import"
+
+### 2. Configuration Automatique
+
+Vercel détectera automatiquement :
+- ✅ **Framework** : Vite
+- ✅ **Build Command** : `npm run build`
+- ✅ **Output Directory** : `dist`
+- ✅ **Install Command** : `npm install`
+
+### 3. Variables d'Environnement
+
+**Dans Vercel Dashboard > Project Settings > Environment Variables**, ajouter :
+
 ```
 SMTP_HOST=smtp.hostinger.com
 SMTP_PORT=465
 SMTP_USER=contact@lapetitevitrine.com
 SMTP_PASS=[VOTRE_MOT_DE_PASSE_SMTP]
 SMTP_FROM=contact@lapetitevitrine.com
-```
-
-### ⚙️ Configuration Application
-```
 NODE_ENV=production
-PORT=3001
 ```
 
-## 🚀 Instructions de déploiement
+### 4. Déploiement
 
-### 1. Préparation du projet
-```bash
-# S'assurer que .env est dans .gitignore
-git status
-# Les fichiers .env ne doivent pas apparaître
+1. **Cliquer "Deploy"**
+2. **Attendre le build** (2-3 minutes)
+3. **Tester l'application** sur l'URL fournie
 
-# Commit et push
-git add .
-git commit -m "Ready for Vercel deployment"
-git push origin master
-```
+## 🔧 API Routes
 
-### 2. Configuration Vercel
-1. **Connecter le repository** : 
-   - Aller sur [vercel.com](https://vercel.com)
-   - Importer le projet depuis GitHub : `agat-dev/la-petite-vitrine-3`
+Les routes API sont automatiquement déployées :
+- `/api/health` - Vérification du statut
+- `/api/add-contact` - Formulaire de contact
+- `/api/send-order-recap` - Emails de commande
 
-2. **Configurer les variables d'environnement** :
-   - Project Settings > Environment Variables
-   - Ajouter chaque variable du template ci-dessus
-   - ⚠️ **Important** : Utiliser les vraies valeurs (mot de passe SMTP)
+## ✅ Tests Post-Déploiement
 
-3. **Configuration Build** :
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-   - Install Command: `npm install`
+### URLs à tester :
+- **Application** : `https://votre-app.vercel.app`
+- **Health Check** : `https://votre-app.vercel.app/api/health`
+- **Formulaire** : `https://votre-app.vercel.app/ecommerce`
 
-### 3. Configuration spécifique API
-```json
-// vercel.json (optionnel si besoin de configuration spécifique)
-{
-  "functions": {
-    "server.js": {
-      "maxDuration": 30
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
-}
-```
+### Vérifications :
+1. ✅ Page d'accueil se charge
+2. ✅ Formulaire de contact fonctionne
+3. ✅ Commande e-commerce fonctionne
+4. ✅ Emails sont envoyés
 
-## ✅ Vérifications post-déploiement
+## 🐛 Troubleshooting
 
-### Tests à effectuer :
-1. **Health Check** : `https://votre-app.vercel.app/api/health`
-2. **Formulaire contact** : `https://votre-app.vercel.app/#contact`
-3. **Commande e-commerce** : `https://votre-app.vercel.app/ecommerce`
+### Problème : Build échoué
+- Vérifier les logs dans Vercel Dashboard
+- S'assurer que `npm run build` fonctionne en local
 
-### Logs et debugging :
-- Vercel Dashboard > Project > Functions tab
-- Voir les logs des fonctions serverless
-- Vérifier les variables d'environnement dans Settings
+### Problème : API ne fonctionne pas
+- Vérifier les variables d'environnement
+- Tester `/api/health` pour voir le statut
 
-## 🔧 Troubleshooting
+### Problème : Emails non envoyés
+- Vérifier les variables SMTP dans Vercel
+- Consulter les logs des fonctions
 
-### Erreur 500 - Variables manquantes
-- Vérifier que toutes les variables SMTP sont configurées
-- Redéployer après ajout de variables
+## 🔄 Déploiement Automatique
 
-### CORS errors
-- Les domaines Vercel sont automatiquement autorisés
-- Format type : `https://la-petite-vitrine-3.vercel.app`
+Une fois configuré, chaque push sur `master` déclenchera automatiquement :
+1. **Build** de l'application
+2. **Déploiement** sur Vercel
+3. **Tests** automatiques
+4. **Mise en ligne** si succès
 
-### Emails non reçus
-- Vérifier les logs dans Vercel Functions
-- Tester avec `node test-deliverability.js` en local d'abord
+## 📱 Domaine Personnalisé
+
+Pour utiliser `lapetitevitrine.com` :
+1. **Vercel Dashboard > Project Settings > Domains**
+2. **Ajouter** `lapetitevitrine.com` et `www.lapetitevitrine.com`
+3. **Configurer DNS** selon les instructions Vercel
