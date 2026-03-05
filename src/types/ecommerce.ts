@@ -7,6 +7,23 @@ export interface Pack {
   deliveryTime: string;
 }
 
+export interface Option {
+  id: string;
+  title: string;
+  price: number;
+  description: string;
+  billingCycle: 'one-time';
+}
+
+export interface Subscription {
+  id: string;
+  title: string;
+  price: number;
+  description: string;
+  billingCycle: 'monthly';
+}
+
+// Kept for backward compatibility in existing components
 export interface MaintenanceOption {
   id: string;
   title: string;
@@ -41,9 +58,12 @@ export interface FormField {
 
 export interface OrderData {
   pack: Pack;
+  options?: Option[];
+  subscriptions?: Subscription[];
   maintenance?: MaintenanceOption;
   formData: Record<string, any>;
   totalPrice: number;
+  monthlyTotal: number;
   status: 'draft' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
@@ -71,6 +91,8 @@ export interface StepFormData {
   steps: FormStep[];
   formData: Record<string, any>;
   selectedPack?: Pack;
+  selectedOptions: Option[];
+  selectedSubscriptions: Subscription[];
   selectedMaintenance?: MaintenanceOption;
   selectedSocialOptions?: MaintenanceOption[];
 }

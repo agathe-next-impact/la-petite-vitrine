@@ -9,81 +9,54 @@ import StyledWrapper from "../../../../components/ui/button-ui";
 export const ProductsSection = (): JSX.Element => {
   const navigate = useNavigate();
 
-  // La logique de maintenanceId est supprimée, on utilise selectedSocialOptions pour la sélection.
-
-  // Packs principaux
   const mainPacks = [
     {
-      id: "pack-base",
+      id: "site-one-page",
       icon: "💡",
-      title: "Pack Essentiel",
+      title: "Site One-Page",
       price: "490€",
-      maintenance: "Maintenance à choisir",
+      subtitle: "Site web professionnel responsive",
       features: [
         "Site web One Page professionnel responsive",
-        "Google Business",
-        "5 Sections : Présentation, Services, Informations pratiques, Map, Contact",
-        "Mise à jour des contenus",
-        "Nom de domaine + hébergement 1 an",
+        "Design sur-mesure adapte a votre activite",
+        "5 Sections : Presentation, Services, Infos pratiques, Map, Contact",
+        "Nom de domaine + hebergement 1 an inclus",
         "Livraison en 5 jours",
         "Sans engagement",
+        "Satisfait ou rembourse sous 48h",
       ],
-      buttonText: "Choisir ce pack",
+      buttonText: "Choisir ce site",
       isRecommended: false,
       bgColor: "bg-amber-50",
       textColor: "text-blue-gray900",
       priceColor: "text-blue-gray900",
-      buttonVariant: "secondary",
     },
     {
-      id: "pack-presence",
+      id: "site-5-pages",
       icon: "⭐",
-      title: "Pack Pro",
+      title: "Site 5 Pages",
       price: "990€",
-      maintenance: "Maintenance à choisir",
+      subtitle: "Site multi-pages avec formulaire et carte Google",
       features: [
-        "Tout le pack de base",
-        "Facebook + Instagram Business",
-        "3 pages additionnelles : Services, Réalisations, A propos, Infos pratiques",
+        "Site web 5 pages professionnel responsive",
+        "Formulaire de contact integre",
+        "Carte Google Maps integree",
+        "Pages : Accueil, Services, Realisations, A propos, Contact",
+        "Nom de domaine + hebergement 1 an inclus",
         "Livraison en 7 jours",
         "Sans engagement",
+        "Satisfait ou rembourse sous 48h",
       ],
-      buttonText: "Pack recommandé",
+      buttonText: "Site recommande",
       isRecommended: true,
       bgColor: "bg-amber-50",
       textColor: "text-blue-gray900",
       priceColor: "text-blue-gray900",
-      buttonVariant: "primary",
-    },
-    {
-      id: "pack-metier",
-      icon: "🎨",
-      title: "Pack Pro Plus",
-      price: "1490€",
-      maintenance: "Maintenance à choisir",
-      features: [
-        "Tout le pack pro",
-        "2 modules métier additionnels : Réservation en ligne, Devis/Simulation en ligne, Messagerie Whatsapp, Avis clients",
-        "Réseaux sociaux professionnels",
-        "Livraison en 9 jours",
-        "Sans engagement",
-      ],
-      buttonText: "Solution complète",
-      isRecommended: false,
-      bgColor: "bg-amber-50",
-      textColor: "text-blue-gray900",
-      priceColor: "text-blue-gray900",
-      buttonVariant: "secondary",
     },
   ];
 
-
-
-  // La logique de maintenanceId et de maintenance par défaut est supprimée.
-
   const handlePackSelect = (packId: string) => {
-    // Redirection directe vers l'étape de maintenance avec l'ID du pack
-    navigate(`/commande?step=maintenance&packId=${packId}`);
+    navigate(`/commande?step=options&packId=${packId}`);
   };
 
   const decorativeShapes = [
@@ -118,29 +91,29 @@ export const ProductsSection = (): JSX.Element => {
           >
             <div className="flex flex-col items-start gap-4 w-full">
               <h2 className="text-blue-gray200 font-heading-2 md:font-medium font-bold text-4xl md:text-4xl lg:text-6xl tracking-[var(--heading-2-letter-spacing)] leading-[var(--heading-2-line-height)] [font-style:var(--heading-2-font-style)]">
-                Nos Packs
+                Nos Services
                 <br />
                 <span className="md:mt-0 mt-4 md:text-5xl text-4xl font-serif italic text-blue-gray100">
-                  Site web et Réseaux sociaux
+                  Site web et Reseaux sociaux
                 </span>
               </h2>
               <p
                 id="products"
                 className="mt-4 md:w-4/6 w-full text-blue-gray200 font-body-l text-sm md:text-base lg:text-[length:var(--body-l-font-size)] leading-[var(--body-l-line-height)]"
               >
-                Des solutions complètes de présence numérique pensées pour les
-                artisans, pour vous développer en ligne tout en restant
-                concentré sur votre métier.
+                Des solutions completes de presence numerique pensees pour les
+                artisans, pour vous developper en ligne tout en restant
+                concentre sur votre metier.
               </p>
             </div>
           </AnimatedSection>
           <StaggeredContainer>
-            <div className="flex md:flex-row flex-col gap-6 w-full">
+            <div className="flex md:flex-row flex-col gap-6 w-full justify-center">
             {mainPacks.map((pack, index) => (
               <Card
                 key={pack.id}
                 className={cn(
-                  "basis-1/3 h-max flex flex-col bg-orange-50 overflow-hidden rounded-[20px] transition-all duration-500 group relative cursor-pointer",
+                  "basis-1/2 max-w-[500px] h-max flex flex-col bg-orange-50 overflow-hidden rounded-[20px] transition-all duration-500 group relative cursor-pointer",
                   pack.bgColor,
                   "border border-solid border-white hover:scale-105"
                 )}
@@ -148,7 +121,7 @@ export const ProductsSection = (): JSX.Element => {
               >
                 <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-20 flex items-center gap-1">
                   <CheckIcon className="w-3 h-3" />
-                  Satisfait ou remboursé
+                  Satisfait ou rembourse
                 </div>
                 <div
                   className="absolute w-full h-[170px] md:h-[180px] top-0 left-0 bg-cover bg-center opacity-15"
@@ -157,9 +130,6 @@ export const ProductsSection = (): JSX.Element => {
                   }}
                 />
                 <CardHeader className="text-center pt-12 md:pt-8 relative z-10">
-                  <div className="hidden text-3xl md:text-4xl mb-3 md:mb-4 transition-transform duration-300 group-hover:scale-110">
-                    {pack.icon}
-                  </div>
                   <h3
                     className={`font-heading-6 font-[number:var(--heading-6-font-weight)] ${pack.textColor} text-3xl md:text-4xl lg:text-[length:var(--heading-6-font-size)] tracking-[var(--heading-6-letter-spacing)] leading-[var(--heading-6-line-height)] [font-style:var(--heading-6-font-style)] mb-2`}
                   >
@@ -171,7 +141,7 @@ export const ProductsSection = (): JSX.Element => {
                     {pack.price}
                   </div>
                   <p className="text-xs md:text-sm text-blue-gray800">
-                    {pack.maintenance}
+                    {pack.subtitle}
                   </p>
                 </CardHeader>
                 <CardContent className="flex-1 mt-4 px-4 md:px-6 py-4 md:py-6 relative z-10">
@@ -218,9 +188,9 @@ export const ProductsSection = (): JSX.Element => {
                     ))}
                   </div>
                   <div className="h-16 flex-1 flex items-center justify-center">
-                    <a href={`/commande?step=maintenance&packId=${pack.id}`} className="w-full">
+                    <a href={`/commande?step=options&packId=${pack.id}`} className="w-full">
                       <StyledWrapper>
-                        Commander ce pack
+                        Commander
                       </StyledWrapper>
                     </a>
                   </div>

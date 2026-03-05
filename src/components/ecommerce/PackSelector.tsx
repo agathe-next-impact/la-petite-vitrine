@@ -11,7 +11,7 @@ interface PackSelectorProps {
   selectedPack?: Pack;
   onSelectPack: (pack: Pack) => void;
   className?: string;
-  showPackDetails?: boolean; // Nouvelle prop pour contrôler l'affichage des détails
+  showPackDetails?: boolean;
 }
 
 export const PackSelector: React.FC<PackSelectorProps> = ({
@@ -27,15 +27,15 @@ export const PackSelector: React.FC<PackSelectorProps> = ({
       <Card className="bg-white/90 backdrop-blur-sm overflow-hidden">
         <CardHeader className="md:p-8 p-0">
         <h2 className="md:text-3xl text-2xl font-bold text-blue-gray900 md:mb-4 font-heading-2 text-center">
-          Choisissez votre pack
+          Choisissez votre site web
         </h2>
         <p className="md:block hidden text-blue-gray600 text-lg font-body-l text-center">
-          Sélectionnez le pack qui correspond le mieux à vos besoins
+          Selectionnez le type de site qui correspond a vos besoins
         </p>
         </CardHeader>
 
         <CardContent className="p-0">
-      <div className="grid grid-cols-1 pt-8 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 pt-8 gap-8 px-6 pb-6">
         {PACKS.map((pack) => {
           const isSelected = selectedPack?.id === pack.id;
           const isOpen = openPackId === pack.id;
@@ -74,15 +74,15 @@ export const PackSelector: React.FC<PackSelectorProps> = ({
                           "flex items-center gap-1 text-amber-700 text-sm font-medium transition-colors",
                           isOpen ? "font-bold text-amber-900" : ""
                         )}
-                        onClick={() => {
-                          // Ne pas empêcher la propagation - permettre la redirection
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setOpenPackId(isOpen ? null : pack.id);
                         }}
                         aria-expanded={isOpen}
                         aria-controls={`pack-content-${pack.id}`}
                       >
                         <span>
-                          {isOpen ? "Masquer le contenu du pack" : "Voir le contenu du pack"}
+                          {isOpen ? "Masquer les details" : "Voir les details"}
                         </span>
                         <motion.span
                           animate={{ rotate: isOpen ? 180 : 0 }}

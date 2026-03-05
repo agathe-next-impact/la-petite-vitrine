@@ -4,26 +4,24 @@ import { EcommerceFlow } from '../components/ecommerce/EcommerceFlow';
 
 export const EcommercePage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  
-  // Récupérer les paramètres d'URL
+
   const packId = searchParams.get('packId') || searchParams.get('pack') || null;
-  const maintenanceId = searchParams.get('maintenance') || null;
   const step = searchParams.get('step') || null;
-  
-  // Déterminer l'étape initiale
-  let initialFlow: 'pack-selection' | 'maintenance-selection' | 'form' | 'summary' = 'pack-selection';
-  
-  if (step === 'maintenance') {
-    initialFlow = 'maintenance-selection';
+
+  let initialFlow: 'pack-selection' | 'options-selection' | 'subscriptions-selection' | 'form' | 'summary' = 'pack-selection';
+
+  if (step === 'options' || step === 'maintenance') {
+    initialFlow = 'options-selection';
+  } else if (step === 'subscriptions') {
+    initialFlow = 'subscriptions-selection';
   } else if (packId) {
-    initialFlow = 'maintenance-selection';
+    initialFlow = 'options-selection';
   }
-  
+
   return (
-    <EcommerceFlow 
+    <EcommerceFlow
       initialFlow={initialFlow}
       preSelectedPackId={packId || undefined}
-      preSelectedMaintenanceId={maintenanceId || undefined}
     />
   );
 };

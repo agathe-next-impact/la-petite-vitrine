@@ -1,109 +1,121 @@
-import { Pack, MaintenanceOption, FormStep } from '../types/ecommerce';
+import { Pack, Option, Subscription, FormStep } from '../types/ecommerce';
 
 export const PACKS: Pack[] = [
   {
-    id: "pack-base",
-    title: "Pack Essentiel",
+    id: "site-one-page",
+    title: "Site One-Page",
     price: 490,
-    description: "Site web One Page professionnel responsive",
+    description: "Un site web professionnel responsive en une seule page",
     features: [
       "Site web One Page professionnel responsive",
-      "Google Business",
-      "5 Sections : Présentation, Services, Informations pratiques, Map, Contact",
-      "Mise à jour des contenus",
-      "Nom de domaine + hébergement 1 an",
+      "Design sur-mesure adapte a votre activite",
+      "5 Sections : Presentation, Services, Informations pratiques, Map, Contact",
+      "Nom de domaine + hebergement 1 an inclus",
       "Livraison en 5 jours",
       "Sans engagement",
-      "Remboursé sous 48h si non satisfait"
+      "Satisfait ou rembourse sous 48h"
     ],
     deliveryTime: "5 jours"
   },
   {
-    id: "pack-presence", 
-    title: "Pack Pro",
+    id: "site-5-pages",
+    title: "Site 5 Pages",
     price: 990,
-    description: "Tout le pack de base + réseaux sociaux",
+    description: "Un site multi-pages complet avec formulaire de contact et carte Google",
     features: [
-      "Tout le pack de base",
-      "Facebook + Instagram Business",
-      "3 pages additionnelles : Services, Réalisations, A propos, Infos pratiques",
+      "Site web 5 pages professionnel responsive",
+      "Formulaire de contact integre",
+      "Carte Google Maps integree",
+      "Pages : Accueil, Services, Realisations, A propos, Contact",
+      "Nom de domaine + hebergement 1 an inclus",
       "Livraison en 7 jours",
       "Sans engagement",
-      "Remboursé sous 48h si non satisfait"
+      "Satisfait ou rembourse sous 48h"
     ],
     deliveryTime: "7 jours"
-  },
-  {
-    id: "pack-metier",
-    title: "Pack Pro Plus",
-    price: 1490,
-    description: "Solution complète avec modules métier",
-    features: [
-      "Tout le pack pro",
-      "2 modules métier additionnels : Réservation en ligne, Devis/Simulation en ligne, Messagerie Whatsapp, Avis clients",
-      "Réseaux sociaux professionnels",
-      "Livraison en 9 jours",
-      "Sans engagement",
-      "Remboursé sous 48h si non satisfait"
-    ],
-    deliveryTime: "9 jours"
   }
 ];
 
-export const MAINTENANCE_OPTIONS: MaintenanceOption[] = [
+export const OPTIONS: Option[] = [
   {
-    id: "maintenance-basic",
-    title: "Maintenance Basique",
-    price: 19,
-    description: "Hébergement + nom de domaine + modifications du contenu du site",
-    features: [
-      "Hébergement inclus",
-      "Nom de domaine inclus",      
-      "Modifications du contenu du site incluses"
-    ],
-    billingCycle: "monthly"
+    id: "fonctionnalite-supplementaire",
+    title: "Fonctionnalite supplementaire",
+    price: 350,
+    description: "Reservation en ligne, devis personnalise, ou autre module metier",
+    billingCycle: 'one-time'
   },
   {
-    id: "maintenance-premium",
-    title: "Maintenance Premium",
-    price: 49,
-    description: "Tout le pack de maintenance basique + Animation des réseaux sociaux",
-    features: [
-      "Tout le pack de maintenance basique",
-      "Animation des réseaux sociaux",
-    ],
-    billingCycle: "monthly"
+    id: "fiche-google",
+    title: "Fiche Google My Business",
+    price: 80,
+    description: "Creation et optimisation de votre fiche Google My Business",
+    billingCycle: 'one-time'
+  },
+  {
+    id: "page-facebook",
+    title: "Page Facebook",
+    price: 120,
+    description: "Creation de votre page Facebook professionnelle",
+    billingCycle: 'one-time'
+  },
+  {
+    id: "page-instagram",
+    title: "Page Instagram",
+    price: 120,
+    description: "Creation de votre page Instagram professionnelle",
+    billingCycle: 'one-time'
   }
 ];
 
-
-// Configuration des étapes du formulaire (structure de base)
-// Options sociales pour MaintenanceSelector
-export const SOCIAL_OPTIONS = [
+export const SUBSCRIPTIONS: Subscription[] = [
   {
-    id: "google-business",
-    title: "Google My Business",
-    description: "Création et optimisation de votre fiche Google My Business",
-    price: 25,
+    id: "maintenance-technique",
+    title: "Maintenance technique",
+    price: 39,
+    description: "Hebergement, nom de domaine et maintenance technique du site web",
+    billingCycle: 'monthly'
   },
   {
-    id: "reseaux-sociaux",
-    title: "2 Réseaux Sociaux",
-    description: "Création de 2 pages professionnelles (Facebook, Instagram ou LinkedIn)",
-    price: 25,
+    id: "contenu-seo",
+    title: "1 Contenu site web (Article SEO)",
+    price: 120,
+    description: "Redaction et publication d'un article SEO par mois sur votre site",
+    billingCycle: 'monthly'
   },
   {
-    id: "annuaires-pro",
-    title: "Annuaires Professionnels",
-    description: "Inscription dans les principaux annuaires professionnels",
-    price: 25,
+    id: "animation-facebook",
+    title: "Animation Facebook (3 posts/sem.)",
+    price: 350,
+    description: "Animation de votre page Facebook avec 3 publications par semaine",
+    billingCycle: 'monthly'
   },
+  {
+    id: "animation-instagram",
+    title: "Animation Instagram (3 posts/sem.)",
+    price: 350,
+    description: "Animation de votre page Instagram avec 3 publications par semaine",
+    billingCycle: 'monthly'
+  }
 ];
+
+// Legacy exports for backward compatibility
+export const MAINTENANCE_OPTIONS = SUBSCRIPTIONS.map(s => ({
+  ...s,
+  features: [s.description],
+}));
+
+export const SOCIAL_OPTIONS = OPTIONS.filter(o =>
+  ['page-facebook', 'page-instagram', 'fiche-google'].includes(o.id)
+).map(o => ({
+  ...o,
+  features: [o.description],
+}));
+
 export const DEFAULT_FORM_STEPS: FormStep[] = [
   {
     id: "step-1",
     title: "Informations de contact",
-    description: "Vos coordonnées personnelles et professionnelles",
+    description: "Vos coordonnees personnelles et professionnelles",
     isCompleted: false,
     fields: [
       {
@@ -117,7 +129,7 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
         id: "password",
         type: "text",
         label: "Mot de passe",
-        placeholder: "Choisissez un mot de passe sécurisé",
+        placeholder: "Choisissez un mot de passe securise",
         required: true,
         validation: { minLength: 6 }
       },
@@ -140,15 +152,15 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
       {
         id: "firstName",
         type: "text",
-        label: "Prénom",
-        placeholder: "Votre prénom",
+        label: "Prenom",
+        placeholder: "Votre prenom",
         required: true,
         validation: { minLength: 2 }
       },
       {
         id: "phone",
         type: "tel",
-        label: "Téléphone",
+        label: "Telephone",
         placeholder: "06 12 34 56 78",
         required: true
       },
@@ -163,34 +175,34 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
   },
   {
     id: "step-2",
-    title: "Activité et localisation",
-    description: "Informations sur votre secteur d'activité et zone d'intervention",
+    title: "Activite et localisation",
+    description: "Informations sur votre secteur d'activite et zone d'intervention",
     isCompleted: false,
     fields: [
       {
         id: "secteur_activite",
         type: "select",
-        label: "Secteur d'activité",
+        label: "Secteur d'activite",
         required: true,
         options: [
-          { value: "batiment", label: "Bâtiment & Rénovation" },
-          { value: "electricien", label: "Électricien" },
+          { value: "batiment", label: "Batiment & Renovation" },
+          { value: "electricien", label: "Electricien" },
           { value: "plombier", label: "Plombier / Chauffagiste" },
           { value: "paysagiste", label: "Paysagiste / Jardinier" },
-          { value: "coiffeur", label: "Coiffeur / Esthéticienne" },
-          { value: "restauration", label: "Hôtellerie / Restauration" },
+          { value: "coiffeur", label: "Coiffeur / Estheticienne" },
+          { value: "restauration", label: "Hotellerie / Restauration" },
           { value: "artisan", label: "Artisan manuel" },
-          { value: "commerce", label: "Commerce de détail" },
+          { value: "commerce", label: "Commerce de detail" },
           { value: "services", label: "Services aux particuliers" },
-          { value: "sante", label: "Santé / Bien-être" },
+          { value: "sante", label: "Sante / Bien-etre" },
           { value: "autre", label: "Autre" }
         ]
       },
       {
         id: "adresse_complete",
         type: "textarea",
-        label: "Adresse complète",
-        placeholder: "Adresse complète de votre entreprise (rue, ville, code postal)",
+        label: "Adresse complete",
+        placeholder: "Adresse complete de votre entreprise (rue, ville, code postal)",
         required: true,
         validation: { minLength: 10, maxLength: 200 }
       },
@@ -198,7 +210,7 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
         id: "zone_intervention",
         type: "textarea",
         label: "Zone d'intervention",
-        placeholder: "Décrivez votre zone d'intervention géographique (villes, départements, rayon en km...)",
+        placeholder: "Decrivez votre zone d'intervention geographique (villes, departements, rayon en km...)",
         required: true,
         validation: { minLength: 10, maxLength: 300 }
       },
@@ -206,7 +218,7 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
         id: "liens_contenus_existants",
         type: "textarea",
         label: "Lien vers des contenus existants",
-        placeholder: "Sites web, réseaux sociaux, portfolios en ligne... (un lien par ligne)",
+        placeholder: "Sites web, reseaux sociaux, portfolios en ligne... (un lien par ligne)",
         required: false,
         validation: { maxLength: 500 }
       },
@@ -214,7 +226,7 @@ export const DEFAULT_FORM_STEPS: FormStep[] = [
         id: "informations_diverses",
         type: "textarea",
         label: "Informations diverses",
-        placeholder: "Toute information complémentaire que vous souhaitez nous communiquer",
+        placeholder: "Toute information complementaire que vous souhaitez nous communiquer",
         required: false,
         validation: { maxLength: 1000 }
       }

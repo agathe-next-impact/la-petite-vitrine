@@ -1,34 +1,26 @@
 import React, { useState } from 'react';
 import { useEcommerce } from '../../hooks/useEcommerce';
 import { PackSelector } from './PackSelector';
+import { OptionsSelector } from './OptionsSelector';
+import { SubscriptionSelector } from './SubscriptionSelector';
 import { StepForm } from './StepForm';
 import { OrderSummary } from './OrderSummary';
-import { MaintenanceSelector } from './MaintenanceSelector';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { ArrowLeftIcon, HomeIcon } from 'lucide-react';
-import { PACKS, MAINTENANCE_OPTIONS } from '../../data/ecommerce-data';
+import { PACKS } from '../../data/ecommerce-data';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { API_CONFIG } from '../../lib/api-config';
 
-type FlowStep = 'pack-selection' | 'maintenance-selection' | 'form' | 'summary';
+type FlowStep = 'pack-selection' | 'options-selection' | 'subscriptions-selection' | 'form' | 'summary';
 
-// Fonction helper pour scroller vers le haut en douceur
 const scrollToTop = () => {
-  // Double vérification pour s'assurer que le scroll fonctionne
   const scrollToTopImmediate = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  
-  // Scroll immédiat
   scrollToTopImmediate();
-  
-  // Scroll de sécurité après un délai
   setTimeout(scrollToTopImmediate, 100);
   setTimeout(scrollToTopImmediate, 300);
 };
@@ -36,13 +28,11 @@ const scrollToTop = () => {
 interface EcommerceFlowProps {
   initialFlow?: FlowStep;
   preSelectedPackId?: string;
-  preSelectedMaintenanceId?: string | null;
 }
 
-export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({ 
+export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
   initialFlow = 'pack-selection',
-  preSelectedPackId,
-  preSelectedMaintenanceId
+  preSelectedPackId
 }) => {
   const [currentFlow, setCurrentFlow] = useState<FlowStep>(initialFlow);
   const navigate = useNavigate();
@@ -50,19 +40,21 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
   const {
     stepFormData,
     selectPack,
-    selectMaintenance,
+    toggleOption,
+    toggleSubscription,
     updateFormData,
     goToStep,
     nextStep,
     prevStep,
     calculateTotal,
+    calculateMonthlyTotal,
     createOrder,
     isFormValid,
     isLastStep,
     isFirstStep
   } = useEcommerce();
 
-  // Pré-sélection du pack si spécifié
+  // Pre-selection du pack si specifie
   useEffect(() => {
     if (preSelectedPackId && !stepFormData.selectedPack) {
       const pack = PACKS.find(p => p.id === preSelectedPackId);
@@ -72,72 +64,92 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     }
   }, [preSelectedPackId, stepFormData.selectedPack, selectPack]);
 
-  // Pré-sélection de la maintenance si spécifiée
+  // Auto-select default pack if arriving at options without a pack
   useEffect(() => {
-    if (preSelectedMaintenanceId !== undefined) {
-      const option = preSelectedMaintenanceId ? MAINTENANCE_OPTIONS.find(m => m.id === preSelectedMaintenanceId) : null;
-      if (option && !stepFormData.selectedMaintenance) {
-        selectMaintenance(option);
-      }
-    }
-  }, [preSelectedMaintenanceId, stepFormData.selectedMaintenance, selectMaintenance]);
-
-  // Sélectionner automatiquement un pack par défaut uniquement si on arrive via URL directe
-  useEffect(() => {
-    if (currentFlow === 'maintenance-selection' && !stepFormData.selectedPack && !preSelectedPackId) {
-      // Sélectionner le pack Pro par défaut seulement si aucun pack n'était pré-sélectionné
-      const defaultPack = PACKS.find(p => p.id === 'pack-pro') || PACKS[1]; // Pack Pro ou second pack
-      if (defaultPack) {
-        console.log('Auto-selecting default pack (no preselection):', defaultPack.title);
-        selectPack(defaultPack);
-      }
+    if (currentFlow === 'options-selection' && !stepFormData.selectedPack && !preSelectedPackId) {
+      const defaultPack = PACKS[0];
+      if (defaultPack) selectPack(defaultPack);
     }
   }, [currentFlow, stepFormData.selectedPack, selectPack, preSelectedPackId]);
 
-  // Effet pour scroller vers le haut quand on arrive sur la sélection de maintenance
   useEffect(() => {
-    if (currentFlow === 'maintenance-selection') {
-      console.log('🔄 Passage à maintenance-selection, scroll vers le haut');
+    if (currentFlow === 'options-selection' || currentFlow === 'subscriptions-selection') {
       setTimeout(() => scrollToTop(), 100);
     }
   }, [currentFlow]);
 
-
-  // Finaliser la commande
   const [emailSent, setEmailSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [emailResult, setEmailResult] = useState<string | null>(null);
 
-  // Fonction helper pour changer de flow avec scroll vers le haut
   const changeFlowWithScroll = (newFlow: FlowStep) => {
     setCurrentFlow(newFlow);
-    // Délai plus long pour s'assurer que le DOM est mis à jour
     setTimeout(() => scrollToTop(), 200);
   };
 
-
+  const FORM_FIELD_LABELS: Record<string, string> = {
+    firstName: "Prenom",
+    lastName: "Nom",
+    email: "Email",
+    phone: "Telephone",
+    company: "Entreprise",
+    secteur_activite: "Secteur d'activite",
+    adresse_complete: "Adresse",
+    city: "Ville",
+    postalCode: "Code postal",
+    zone_intervention: "Zone d'intervention",
+    liens_contenus_existants: "Liens vers vos contenus existants",
+    informations_diverses: "Informations diverses",
+  };
 
   const handleCompleteOrder = async () => {
-    console.log('🚀 Début handleCompleteOrder');
     setSending(true);
     setEmailResult(null);
     try {
       await createOrder();
       const pack = stepFormData.selectedPack;
-      const maintenance = stepFormData.selectedMaintenance;
+      const options = stepFormData.selectedOptions;
+      const subscriptions = stepFormData.selectedSubscriptions;
       const formData = stepFormData.formData;
       const total = calculateTotal();
+      const monthlyTotal = calculateMonthlyTotal();
       const adminEmail = "contact@lapetitevitrine.com";
-      
-      console.log('📋 Données commande:', { 
-        pack: pack?.title, 
-        maintenance: maintenance?.title, 
-        email: formData.email,
-        total 
-      });
-      
-      if (pack && maintenance && formData.email) {
-        // Email client
+
+      if (pack && formData.email) {
+        const optionsHtml = options.length > 0
+          ? `<h3>Options supplementaires</h3>
+             <ul>${options.map(o => `<li style="color:#222;font-weight:600;">${o.title} - ${o.price}€</li>`).join('')}</ul>`
+          : '';
+
+        const subscriptionsHtml = subscriptions.length > 0
+          ? `<h3>Abonnements mensuels</h3>
+             <ul>${subscriptions.map(s => `<li style="color:#222;font-weight:600;">${s.title} - ${s.price}€/mois</li>`).join('')}</ul>`
+          : '';
+
+        const totalHtml = `
+          <h3>Montant total</h3>
+          <p style="font-size:1.1rem;color:#2E66C1;font-weight:700;margin:0 0 8px 0;">
+            ${total}€
+            ${monthlyTotal > 0 ? `<span style="color:#222;font-weight:400;font-size:0.95rem;">(+${monthlyTotal}€/mois)</span>` : ''}
+          </p>`;
+
+        const recapContent = `
+          <h2>Recapitulatif de commande</h2>
+          <h3>Site web selectionne</h3>
+          <ul>
+            <li style="color:#222;font-weight:600;">${pack.title} - ${pack.price}€</li>
+            ${pack.features.map(f => `<li style="color:#2E66C1;">${f}</li>`).join('')}
+          </ul>
+          ${optionsHtml}
+          ${subscriptionsHtml}
+          <h3>Informations client</h3>
+          <ul>
+            ${Object.entries(formData)
+              .map(([k, v]) => `<li><strong style="color:#2E66C1;">${FORM_FIELD_LABELS[k] ?? k}:</strong> <span style="color:#222;">${v}</span></li>`)
+              .join('')}
+          </ul>
+          ${totalHtml}`;
+
         const htmlClient = `
           <!DOCTYPE html>
           <html>
@@ -170,23 +182,23 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                   Merci pour votre confiance !
                 </p>
                 <p style="font-size:1rem;color:#222;margin:0;">
-                  Prenez dès à présent contact avec notre équipe pour nous faire part de vos attentes précises. </br>
-                  C'est à l'issue de cet échange que nous vous enverrons un message de confirmation de commande avec un lien pour procéder au paiement en ligne.
-                  Nous commencerons alors la création de votre site internet.
+                  Prenez des a present contact avec notre equipe pour nous faire part de vos attentes precises. </br>
+                  C'est a l'issue de cet echange que nous vous enverrons un message de confirmation de commande avec un lien pour proceder au paiement en ligne.
+                  Nous commencerons alors la creation de votre site internet.
                 </p>
                 <div style="background:#F0F9FF;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #0EA5E9;">
                   <h3 style="color:#2E66C1;font-size:1.2rem;margin:0 0 16px 0;font-weight:600;text-align:center;">
-                    💬 Contactez-nous directement
+                    Contactez-nous directement
                   </h3>
                   <div style="text-align:center;">
                     <div style="margin-bottom:12px;">
-                      <strong style="color:#2E66C1;">📧 Email :</strong>
+                      <strong style="color:#2E66C1;">Email :</strong>
                       <a href="mailto:contact@lapetitevitrine.com" style="color:#D97706;text-decoration:none;margin-left:8px;">
                         contact@lapetitevitrine.com
                       </a>
                     </div>
                     <div>
-                      <strong style="color:#2E66C1;">📞 Téléphone :</strong>
+                      <strong style="color:#2E66C1;">Telephone :</strong>
                       <a href="tel:0673981638" style="color:#D97706;text-decoration:none;margin-left:8px;">
                         06 73 98 16 38
                       </a>
@@ -195,43 +207,21 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                 </div>
               </div>
               <div class="recap">
-                <h2>Récapitulatif de commande</h2>
-                <h3>Pack sélectionné</h3>
-                <ul>
-                  <li style="color:#222;font-weight:600;">${pack.title} - ${pack.price}€</li>
-                  ${pack.features.map((f) => `<li style="color:#2E66C1;">${f}</li>`).join('')}
-                </ul>
-                <h3>Maintenance sélectionnée</h3>
-                <ul>
-                  <li style="color:#222;font-weight:600;">${maintenance.title} - ${maintenance.price}€/mois</li>
-                  <li style="color:#2E66C1;">${maintenance.description}</li>
-                </ul>
-                <h3>Informations client</h3>
-                <ul>
-                  ${Object.entries(formData)
-                    .map(([k, v]) => `<li><strong style="color:#2E66C1;">${FORM_FIELD_LABELS[k] ?? k}:</strong> <span style="color:#222;">${v}</span></li>`)
-                    .join('')}
-                </ul>
-                <h3>Montant total</h3>
-                <p style="font-size:1.1rem;color:#2E66C1;font-weight:700;margin:0 0 8px 0;">
-                  ${total}€ <span style="color:#222;font-weight:400;font-size:0.95rem;">(+${maintenance.price}€/mois de maintenance)</span>
-                </p>
+                ${recapContent}
               </div>
               <div class="footer">
                 La Petite Vitrine &mdash; contact@lapetitevitrine.com
               </div>
             </div>
           </body>
-          </html>
-        `;
+          </html>`;
 
-        // Email admin
         const htmlAdmin = `
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="utf-8">
-            <title>Nouvelle commande reçue - La Petite Vitrine</title>
+            <title>Nouvelle commande recue - La Petite Vitrine</title>
             <style>
               body { font-family: 'Inter', Arial, sans-serif; background: #F9FAFB; color: #222; }
               .container { max-width: 600px; margin: 0 auto; padding: 32px 0 24px 0; background: #F9FAFB; border-radius: 18px; border: 1px solid #E0E7EF; box-shadow: 0 4px 24px 0 rgba(46,102,193,0.07); }
@@ -251,182 +241,112 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
             <div class="container">
               <div class="header">
                 <img src="https://lapetitevitrine.com/logo-pv.png" alt="La Petite Vitrine" />
-                <h1>Nouvelle commande reçue</h1>
+                <h1>Nouvelle commande recue</h1>
               </div>
               <div class="section">
                 <p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
-                  Nouvelle commande à traiter.
+                  Nouvelle commande a traiter.
                 </p>
                 <p style="font-size:1rem;color:#222;margin:0;">
-                  Un client vient de passer commande. Retrouvez le récapitulatif ci-dessous.
+                  Un client vient de passer commande. Retrouvez le recapitulatif ci-dessous.
                 </p>
               </div>
               <div class="recap">
-                <h2>Récapitulatif de commande</h2>
-                <h3>Pack sélectionné</h3>
-                <ul>
-                  <li style="color:#222;font-weight:600;">${pack.title} - ${pack.price}€</li>
-                  ${pack.features.map((f) => `<li style="color:#2E66C1;">${f}</li>`).join('')}
-                </ul>
-                <h3>Maintenance sélectionnée</h3>
-                <ul>
-                  <li style="color:#222;font-weight:600;">${maintenance.title} - ${maintenance.price}€/mois</li>
-                  <li style="color:#2E66C1;">${maintenance.description}</li>
-                </ul>
-                <h3>Informations client</h3>
-                <ul>
-                  ${Object.entries(formData)
-                    .map(([k, v]) => `<li><strong style="color:#2E66C1;">${FORM_FIELD_LABELS[k] ?? k}:</strong> <span style="color:#222;">${v}</span></li>`)
-                    .join('')}
-                </ul>
-                <h3>Montant total</h3>
-                <p style="font-size:1.1rem;color:#2E66C1;font-weight:700;margin:0 0 8px 0;">
-                  ${total}€ <span style="color:#222;font-weight:400;font-size:0.95rem;">(+${maintenance.price}€/mois de maintenance)</span>
-                </p>
+                ${recapContent}
               </div>
               <div class="footer">
                 La Petite Vitrine &mdash; contact@lapetitevitrine.com
               </div>
             </div>
           </body>
-          </html>
-        `;
+          </html>`;
 
-        // Configuration API (détecte automatiquement www.lapetitevitrine.com)
         const API_BASE_URL = API_CONFIG.BASE_URL;
 
-        // Envoi email client
-        console.log('📤 Envoi email client...', formData.email);
-        console.log('📋 Email client data:', {
-          to: formData.email,
-          subject: 'Votre récapitulatif de commande - La Petite Vitrine',
-          htmlLength: htmlClient.length
-        });
-        
-        // Vérification si l'email client est sûr (pas de domaines temporaires/suspects)
+        // Verification email suspect
         const emailDomain = formData.email.split('@')[1]?.toLowerCase();
         const suspiciousDomains = ['10minutemail', 'guerrillamail', 'mailinator', 'tempmail'];
         const isEmailSafe = emailDomain && !suspiciousDomains.some(domain => emailDomain.includes(domain));
-        
+
         if (!isEmailSafe) {
-          console.warn('⚠️ Email client non envoyé - domaine suspect ou invalide:', emailDomain);
+          console.warn('Email client non envoye - domaine suspect:', emailDomain);
         } else {
           const clientResponse = await fetch(`${API_BASE_URL}/api/send-order-recap`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               to: formData.email,
-              subject: 'Votre récapitulatif de commande - La Petite Vitrine',
+              subject: 'Votre recapitulatif de commande - La Petite Vitrine',
               htmlContent: htmlClient,
             }),
           });
-          
-          console.log('📬 Client response status:', clientResponse.status);
-          console.log('📬 Client response headers:', Object.fromEntries(clientResponse.headers.entries()));
-          
+
           if (!clientResponse.ok) {
-            console.error('❌ Erreur envoi email client:', clientResponse.status, clientResponse.statusText);
             const errorText = await clientResponse.text();
-            console.error('❌ Détails erreur client:', errorText);
+            console.error('Erreur envoi email client:', errorText);
             throw new Error(`Erreur envoi email client: ${clientResponse.status}`);
           }
-          
-          const clientResult = await clientResponse.json();
-          console.log('✅ Email client envoyé avec succès:', clientResult);
         }
 
         // Envoi email admin
-        console.log('📤 Envoi email admin...', adminEmail);
         const adminResponse = await fetch(`${API_BASE_URL}/api/send-order-recap`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             to: adminEmail,
-            subject: 'Nouvelle commande reçue - La Petite Vitrine',
+            subject: 'Nouvelle commande recue - La Petite Vitrine',
             htmlContent: htmlAdmin,
           }),
         });
-        
+
         if (!adminResponse.ok) {
-          console.error('❌ Erreur envoi email admin:', adminResponse.status, adminResponse.statusText);
           const errorText = await adminResponse.text();
-          console.error('❌ Détails erreur admin:', errorText);
+          console.error('Erreur envoi email admin:', errorText);
           throw new Error(`Erreur envoi email admin: ${adminResponse.status}`);
         }
-        console.log('✅ Email admin envoyé avec succès');
 
         setEmailSent(true);
-        setEmailResult('Emails envoyés avec succès !');
+        setEmailResult('Emails envoyes avec succes !');
       } else {
-        setEmailResult('Erreur : données de commande incomplètes.');
+        setEmailResult('Erreur : donnees de commande incompletes.');
       }
       navigate('/success');
     } catch (error) {
-      setEmailResult('Erreur lors de la création de la commande');
-      console.log('[EcommerceFlow] Erreur lors de la commande :', error);
+      setEmailResult('Erreur lors de la creation de la commande');
+      console.log('[EcommerceFlow] Erreur:', error);
     } finally {
       setSending(false);
     }
   };
 
   const handleFormCompleted = async () => {
-    // On déclenche l'envoi d'email et la création de commande ici
     await handleCompleteOrder();
-    navigate('/success'); // Ou navigate('/success') si tu veux aller directement à la page de succès
   };
 
   const goBack = () => {
     switch (currentFlow) {
-      case 'maintenance-selection':
+      case 'options-selection':
         changeFlowWithScroll('pack-selection');
         break;
+      case 'subscriptions-selection':
+        changeFlowWithScroll('options-selection');
+        break;
       case 'form':
-        changeFlowWithScroll('maintenance-selection');
+        changeFlowWithScroll('subscriptions-selection');
         break;
       case 'summary':
         changeFlowWithScroll('form');
         break;
-      default:
-        break;
     }
-  };
-
-  // Associe les clés de FormData à leur label utilisateur pour affichage dans le récapitulatif
-  const FORM_FIELD_LABELS: Record<string, string> = {
-    firstName: "Prénom",
-    lastName: "Nom",
-    email: "Email",
-    phone: "Téléphone",
-    company: "Entreprise",
-    secteur_activite: "Secteur d'activité",
-    adresse_complete: "Adresse",
-    city: "Ville",
-    postalCode: "Code postal",
-    zone_intervention: "Zone d'intervention",
-    concurrents_principaux: "Concurrents principaux",
-    services_proposes: "Services proposés",
-    specificite_positionnement: "Positionnement spécifique",
-    types_clients: "Types de clients",
-    ton_communication: "Ton de communication",
-    liens_contenus_existants: "Liens vers vos contenus existants",
-    informations_diverses: "Informations diverses",
-    elements_visuels: "Fichiers visuels",
-    textes_contenus: "Fichiers textes",
-    autres_fichiers: "Autres fichiers",
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        {/* En-tête */}
+        {/* En-tete */}
         <div className="flex justify-center items-center mb-8 bg-amber-900 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-amber-200/50">
           <div className="flex flex-col items-center space-4 gap-6">
             <div className='flex justify-start gap-2'>
-            {/* Bouton retour à l'accueil */}
             <Button
               variant="default"
               onClick={() => window.location.href = '/'}
@@ -435,7 +355,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
               <HomeIcon className="w-4 h-4" />
               Accueil
             </Button>
-            
+
             {currentFlow !== 'pack-selection' && (
               <Button
                 variant="outline"
@@ -452,45 +372,40 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
               Commande en ligne
             </h1>
             <p className="text-blue-gray200 text-center font-body-l">
-              Nous validons votre commande sous 48h, vous recevrez un email de confirmation avec les détails.
+              Nous validons votre commande sous 48h, vous recevrez un email de confirmation avec les details.
             </p>
             </div>
           </div>
         </div>
 
-
         {/* Contenu principal */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Contenu principal */}
           <div className="lg:col-span-2">
             {currentFlow === 'pack-selection' && (
               <PackSelector
                 selectedPack={stepFormData.selectedPack}
-                showPackDetails={true} // Réactiver les détails pour permettre un choix éclairé
+                showPackDetails={true}
                 onSelectPack={(pack) => {
-                  console.log('Pack selected:', pack.title, '- Saving and redirecting to maintenance');
-                  // SÉLECTIONNER le pack ET rediriger
                   selectPack(pack);
-                  changeFlowWithScroll('maintenance-selection');
+                  changeFlowWithScroll('options-selection');
                 }}
               />
             )}
 
-            {currentFlow === 'maintenance-selection' && (
+            {currentFlow === 'options-selection' && (
               <>
-                {/* Section Pack sélectionné */}
                 {stepFormData.selectedPack && (
                   <Card className="mb-8 bg-amber-50 border-amber-200">
                     <CardHeader className="pb-4">
                       <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-blue-gray900">Pack sélectionné</h3>
+                        <h3 className="text-lg font-semibold text-blue-gray900">Site selectionne</h3>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => changeFlowWithScroll('pack-selection')}
                           className="text-amber-700 border-amber-300 hover:bg-amber-100"
                         >
-                          Changer de pack
+                          Changer
                         </Button>
                       </div>
                     </CardHeader>
@@ -505,20 +420,33 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                     </CardContent>
                   </Card>
                 )}
-                
-                <MaintenanceSelector
-                  maintenanceOptions={MAINTENANCE_OPTIONS}
-                  selectedMaintenance={stepFormData.selectedMaintenance ?? null}
-                  onSelectMaintenance={selectMaintenance}
+
+                <OptionsSelector
+                  selectedOptions={stepFormData.selectedOptions}
+                  onToggleOption={toggleOption}
                   className="mb-8"
                 />
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => {
-                      console.log('Maintenance continue button clicked');
-                      changeFlowWithScroll('form');
-                    }}
-                    disabled={!stepFormData.selectedMaintenance}
+                    onClick={() => changeFlowWithScroll('subscriptions-selection')}
+                    className="bg-amber-600 hover:bg-amber-700 text-white font-medium px-8 py-3 rounded-xl shadow-md"
+                  >
+                    Continuer
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {currentFlow === 'subscriptions-selection' && (
+              <>
+                <SubscriptionSelector
+                  selectedSubscriptions={stepFormData.selectedSubscriptions}
+                  onToggleSubscription={toggleSubscription}
+                  className="mb-8"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => changeFlowWithScroll('form')}
                     className="bg-amber-600 hover:bg-amber-700 text-white font-medium px-8 py-3 rounded-xl shadow-md"
                   >
                     Continuer
@@ -551,37 +479,20 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                     </h2>
                   </CardHeader>
                   <CardContent className="p-8">
-                    
                     <div className="space-y-4 mb-6">
                       <div className="bg-green-50 border border-green-200 rounded-xl p-6 shadow-sm">
                         <h3 className="font-semibold text-green-800 mb-2">
-                          ✅ Votre commande est prête !
+                          Votre commande est prete !
                         </h3>
                         <p className="text-green-700 text-sm">
-                          Vérifiez les détails ci-contre et cliquez sur "Confirmer la commande" 
+                          Verifiez les details ci-contre et cliquez sur "Confirmer la commande"
                           pour finaliser votre achat.
                         </p>
                       </div>
-                      
-                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm">
-                        <h3 className="font-semibold text-blue-800 mb-2">
-                          📧 Prochaines étapes
-                        </h3>
-                        <ul className="text-blue-700 text-sm space-y-1">
-                          <li>• Vous recevrez un email de confirmation</li>
-                          <li>• Notre équipe vous contactera sous 24h</li>
-                          <li>• Accès à votre espace client pour suivre l'avancement</li>
-                        </ul>
-                      </div>
                     </div>
 
-
-                    {/* Envoi de l'email de récapitulatif déplacé dans handleCompleteOrder */}
                     <Button
-                      onClick={async () => {
-                        await handleCompleteOrder();
-                        // La redirection est déjà gérée dans handleCompleteOrder ou handleFormCompleted
-                      }}
+                      onClick={handleCompleteOrder}
                       className="w-full bg-amber-600 hover:bg-amber-700 text-white text-lg py-4 rounded-xl shadow-lg font-medium mt-4 flex items-center justify-center gap-2"
                       disabled={sending}
                     >
@@ -595,14 +506,14 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                       )}
                     </Button>
                     {emailResult && <div className="text-red-600 mt-2">{emailResult}</div>}
-                    
+
                     <div className="text-center mt-4">
                       <Button
                         variant="outline"
                         onClick={() => window.location.href = '/'}
                         className="text-blue-gray-600 hover:text-blue-gray-800 border-blue-gray-300 hover:bg-blue-gray-50"
                       >
-                        Retourner à l'accueil
+                        Retourner a l'accueil
                       </Button>
                     </div>
                   </CardContent>
@@ -615,9 +526,11 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
             <div className="sticky top-8">
               <OrderSummary
                 selectedPack={stepFormData.selectedPack}
-                selectedMaintenance={stepFormData.selectedMaintenance}
+                selectedOptions={stepFormData.selectedOptions}
+                selectedSubscriptions={stepFormData.selectedSubscriptions}
                 formData={stepFormData.formData}
                 totalPrice={calculateTotal()}
+                monthlyTotal={calculateMonthlyTotal()}
                 className="bg-white/90 backdrop-blur-sm border-amber-200/50 shadow-lg rounded-2xl"
               />
             </div>
