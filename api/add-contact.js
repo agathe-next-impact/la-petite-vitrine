@@ -59,15 +59,6 @@ if (missingEnvVars.length > 0) {
       }
     });
     
-    // Test de la connexion
-    mailer.verify((error, success) => {
-      if (error) {
-        console.error('❌ Erreur vérification SMTP:', error);
-      } else {
-        console.log('✅ Connexion SMTP vérifiée avec succès');
-      }
-    });
-    
     console.log('✅ Mailer configuré avec succès');
   } catch (error) {
     console.error('❌ Erreur configuration mailer:', error);
@@ -131,7 +122,7 @@ export default async function handler(req, res) {
 
   try {
     // Email vers l'admin
-    const adminEmail = 'contact@lapetitevitrine.com';
+    const adminEmail = 'agathe@next-impact.digital';
     console.log('📤 Envoi email admin...', adminEmail);
     
     const adminHtml = `
