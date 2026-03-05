@@ -93,13 +93,6 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     email: "Email",
     phone: "Telephone",
     company: "Entreprise",
-    secteur_activite: "Secteur d'activite",
-    adresse_complete: "Adresse",
-    city: "Ville",
-    postalCode: "Code postal",
-    zone_intervention: "Zone d'intervention",
-    liens_contenus_existants: "Liens vers vos contenus existants",
-    informations_diverses: "Informations diverses",
   };
 
   const handleCompleteOrder = async () => {
