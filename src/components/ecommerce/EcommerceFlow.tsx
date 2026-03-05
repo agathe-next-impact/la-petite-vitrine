@@ -106,7 +106,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
       const formData = stepFormData.formData;
       const total = calculateTotal();
       const monthlyTotal = calculateMonthlyTotal();
-      const adminEmail = "contact@lapetitevitrine.com";
+      const adminEmail = "agathe@next-impact.digital";
 
       if (pack && formData.email) {
         const optionsHtml = options.length > 0
