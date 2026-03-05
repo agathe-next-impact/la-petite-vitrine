@@ -50,6 +50,7 @@ if (missingEnvVars.length > 0) {
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
       secure: true,
+      authMethod: 'LOGIN',
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
