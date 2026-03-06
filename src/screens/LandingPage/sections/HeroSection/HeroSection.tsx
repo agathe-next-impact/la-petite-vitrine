@@ -49,12 +49,12 @@ export const HeroSection = (): JSX.Element => {
 
         {/* Badge Livré en 5 jours en haut à droite */}
         <div className="absolute top-[5%] -right-[0%] z-10 bg-black text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg hover:scale-110 transition-transform duration-300">
-          
+          Livré en 5 jours
         </div>
 
         {/* Badge Résiliable en bas à droite */}
         <div className="w-max absolute md:bottom-[0%] -bottom-[40%] md:-left-[5%] -right-[5%] z-10 bg-amber-900 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg hover:scale-110 transition-transform duration-300">
-          Livré en 5 jours
+          Résiliable à tout moment
         </div>
 
         <Card className="relative w-full h-full border-none bg-transparent">
@@ -62,7 +62,7 @@ export const HeroSection = (): JSX.Element => {
             <div className="absolute right-[0%] md:-top-[14%] -top-[20%] w-max md:p-8 p-4 rounded-[30px] bg-amber-600 text-center font-body-l font-[number:var(--body-l-font-weight)] text-white text-3xl md:text-4xl lg:text-5xl tracking-[var(--body-l-letter-spacing)] [font-style:var(--body-l-font-style)] z-40">
               <p>490€</p>
               <p className="mt-2 md:text-3xl text-2xl italic">
-                + 19 ou 29€/mois
+                29€/mois
               </p>
             </div>
             <div className="absolute w-[75%] h-[85%] top-[12%] left-[12%] bg-amber-400 rounded-[30px] md:rounded-[40px] lg:rounded-[50px] transition-transform duration-700 hover:scale-105" />
