@@ -95,7 +95,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
     company: "Entreprise",
   };
 
-  const handleCompleteOrder = async () => {
+  const handleComplete = async (type: 'devis' | 'commande') => {
     setSending(true);
     setEmailResult(null);
     try {
@@ -107,6 +107,8 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
       const total = calculateTotal();
       const monthlyTotal = calculateMonthlyTotal();
       const adminEmail = "agathe@next-impact.digital";
+
+      const isDevis = type === 'devis';
 
       if (pack && formData.email) {
         const optionsHtml = options.length > 0
@@ -120,14 +122,14 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
           : '';
 
         const totalHtml = `
-          <h3>Montant total</h3>
+          <h3>Montant total estimatif</h3>
           <p style="font-size:1.1rem;color:#2E66C1;font-weight:700;margin:0 0 8px 0;">
             ${total}€
             ${monthlyTotal > 0 ? `<span style="color:#222;font-weight:400;font-size:0.95rem;">(+${monthlyTotal}€/mois)</span>` : ''}
           </p>`;
 
         const recapContent = `
-          <h2>Recapitulatif de commande</h2>
+          <h2>Recapitulatif ${isDevis ? 'du devis' : 'de commande'}</h2>
           <h3>Site web selectionne</h3>
           <ul>
             <li style="color:#222;font-weight:600;">${pack.title} - ${pack.price}€</li>
@@ -143,13 +145,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
           </ul>
           ${totalHtml}`;
 
-        const htmlClient = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Confirmation de commande - La Petite Vitrine</title>
-            <style>
+        const emailStyles = `
               body { font-family: 'Inter', Arial, sans-serif; background: #F9FAFB; color: #222; }
               .container { max-width: 600px; margin: 0 auto; padding: 32px 0 24px 0; background: #F9FAFB; border-radius: 18px; border: 1px solid #E0E7EF; box-shadow: 0 4px 24px 0 rgba(46,102,193,0.07); }
               .header { text-align: center; margin-bottom: 32px; }
@@ -161,24 +157,40 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
               .recap h3 { color: #F59E42; font-size: 1rem; margin-bottom: 6px; font-weight: 600; }
               ul { margin: 0 0 12px 0; padding-left: 18px; }
               li { color: #2E66C1; }
-              .footer { text-align: center; color: #B0B7C3; font-size: 0.9rem; margin-top: 16px; }
-            </style>
+              .footer { text-align: center; color: #B0B7C3; font-size: 0.9rem; margin-top: 16px; }`;
+
+        const clientMessage = isDevis
+          ? `<p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
+                  Merci pour votre demande de devis !
+                </p>
+                <p style="font-size:1rem;color:#222;margin:0;">
+                  Nous avons bien recu votre demande. Notre equipe vous recontactera sous 48h pour echanger sur votre projet et vous transmettre un devis personnalise.
+                </p>`
+          : `<p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
+                  Merci pour votre confiance !
+                </p>
+                <p style="font-size:1rem;color:#222;margin:0;">
+                  Prenez des a present contact avec notre equipe pour nous faire part de vos attentes precises.</br>
+                  C'est a l'issue de cet echange que nous vous enverrons un message de confirmation de commande avec un lien pour proceder au paiement en ligne.
+                  Nous commencerons alors la creation de votre site internet.
+                </p>`;
+
+        const htmlClient = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>${isDevis ? 'Votre devis' : 'Confirmation de commande'} - La Petite Vitrine</title>
+            <style>${emailStyles}</style>
           </head>
           <body>
             <div class="container">
               <div class="header">
                 <img src="https://lapetitevitrine.com/logo-pv.png" alt="La Petite Vitrine" />
-                <h1>Confirmation de commande</h1>
+                <h1>${isDevis ? 'Votre devis' : 'Confirmation de commande'}</h1>
               </div>
               <div class="section">
-                <p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
-                  Merci pour votre confiance !
-                </p>
-                <p style="font-size:1rem;color:#222;margin:0;">
-                  Prenez des a present contact avec notre equipe pour nous faire part de vos attentes precises. </br>
-                  C'est a l'issue de cet echange que nous vous enverrons un message de confirmation de commande avec un lien pour proceder au paiement en ligne.
-                  Nous commencerons alors la creation de votre site internet.
-                </p>
+                ${clientMessage}
                 <div style="background:#F0F9FF;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #0EA5E9;">
                   <h3 style="color:#2E66C1;font-size:1.2rem;margin:0 0 16px 0;font-weight:600;text-align:center;">
                     Contactez-nous directement
@@ -209,40 +221,36 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
           </body>
           </html>`;
 
+        const adminMessage = isDevis
+          ? `<p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
+                  Nouvelle demande de devis.
+                </p>
+                <p style="font-size:1rem;color:#222;margin:0;">
+                  Un client souhaite recevoir un devis. Retrouvez le recapitulatif ci-dessous.
+                </p>`
+          : `<p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
+                  Nouvelle commande a traiter.
+                </p>
+                <p style="font-size:1rem;color:#222;margin:0;">
+                  Un client vient de passer commande. Retrouvez le recapitulatif ci-dessous.
+                </p>`;
+
         const htmlAdmin = `
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="utf-8">
-            <title>Nouvelle commande recue - La Petite Vitrine</title>
-            <style>
-              body { font-family: 'Inter', Arial, sans-serif; background: #F9FAFB; color: #222; }
-              .container { max-width: 600px; margin: 0 auto; padding: 32px 0 24px 0; background: #F9FAFB; border-radius: 18px; border: 1px solid #E0E7EF; box-shadow: 0 4px 24px 0 rgba(46,102,193,0.07); }
-              .header { text-align: center; margin-bottom: 32px; }
-              .header img { height: 60px; margin-bottom: 12px; }
-              .header h1 { font-size: 2rem; color: #2E66C1; margin: 0; font-weight: 700; letter-spacing: -1px; }
-              .section { background: #FFF8E1; border-radius: 12px; padding: 20px 24px; margin: 0 24px 24px 24px; border: 1px solid #FCD34D; }
-              .recap { background: #fff; border-radius: 12px; padding: 24px 24px 16px 24px; margin: 0 24px 24px 24px; border: 1px solid #E0E7EF; }
-              .recap h2 { color: #2E66C1; font-size: 1.2rem; margin-bottom: 12px; font-weight: 700; }
-              .recap h3 { color: #F59E42; font-size: 1rem; margin-bottom: 6px; font-weight: 600; }
-              ul { margin: 0 0 12px 0; padding-left: 18px; }
-              li { color: #2E66C1; }
-              .footer { text-align: center; color: #B0B7C3; font-size: 0.9rem; margin-top: 16px; }
-            </style>
+            <title>${isDevis ? 'Nouvelle demande de devis' : 'Nouvelle commande recue'} - La Petite Vitrine</title>
+            <style>${emailStyles}</style>
           </head>
           <body>
             <div class="container">
               <div class="header">
                 <img src="https://lapetitevitrine.com/logo-pv.png" alt="La Petite Vitrine" />
-                <h1>Nouvelle commande recue</h1>
+                <h1>${isDevis ? 'Nouvelle demande de devis' : 'Nouvelle commande recue'}</h1>
               </div>
               <div class="section">
-                <p style="font-size:1.05rem;color:#2E66C1;margin:0 0 8px 0;font-weight:600;">
-                  Nouvelle commande a traiter.
-                </p>
-                <p style="font-size:1rem;color:#222;margin:0;">
-                  Un client vient de passer commande. Retrouvez le recapitulatif ci-dessous.
-                </p>
+                ${adminMessage}
               </div>
               <div class="recap">
                 ${recapContent}
@@ -269,7 +277,9 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               to: formData.email,
-              subject: 'Votre recapitulatif de commande - La Petite Vitrine',
+              subject: isDevis
+                ? 'Votre devis - La Petite Vitrine'
+                : 'Votre recapitulatif de commande - La Petite Vitrine',
               htmlContent: htmlClient,
             }),
           });
@@ -287,7 +297,9 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             to: adminEmail,
-            subject: 'Nouvelle commande recue - La Petite Vitrine',
+            subject: isDevis
+              ? 'Nouvelle demande de devis - La Petite Vitrine'
+              : 'Nouvelle commande recue - La Petite Vitrine',
             htmlContent: htmlAdmin,
           }),
         });
@@ -299,13 +311,12 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
         }
 
         setEmailSent(true);
-        setEmailResult('Emails envoyes avec succes !');
       } else {
-        setEmailResult('Erreur : donnees de commande incompletes.');
+        setEmailResult('Erreur : donnees incompletes.');
       }
-      navigate('/success');
+      navigate(`/success?type=${type}`);
     } catch (error) {
-      setEmailResult('Erreur lors de la creation de la commande');
+      setEmailResult('Erreur lors de l\'envoi. Veuillez reessayer.');
       console.log('[EcommerceFlow] Erreur:', error);
     } finally {
       setSending(false);
@@ -362,10 +373,10 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
             </div>
             <div className="flex flex-col items-center gap-4">
             <h1 className="md:text-3xl text-2xl font-bold text-blue-gray100 font-heading-2 text-center">
-              Commande en ligne
+              Devis en ligne
             </h1>
             <p className="text-blue-gray200 text-center font-body-l">
-              Nous validons votre commande sous 48h, vous recevrez un email de confirmation avec les details.
+              Composez votre projet et recevez votre devis personnalise.
             </p>
             </div>
           </div>
@@ -468,37 +479,60 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                 <Card className="bg-white/90 backdrop-blur-sm border-amber-200/50 shadow-lg rounded-2xl overflow-hidden">
                   <CardHeader className="bg-gradient-to-r from-amber-100 to-blue-gray-100 p-8">
                     <h2 className="text-3xl font-bold text-blue-gray900 mb-2 font-heading-2 text-center">
-                      Finaliser votre commande
+                      Finalisez votre demande
                     </h2>
                   </CardHeader>
                   <CardContent className="p-8">
                     <div className="space-y-4 mb-6">
-                      <div className="bg-green-50 border border-green-200 rounded-xl p-6 shadow-sm">
-                        <h3 className="font-semibold text-green-800 mb-2">
-                          Votre commande est prete !
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm">
+                        <h3 className="font-semibold text-blue-800 mb-2">
+                          Votre selection est prete !
                         </h3>
-                        <p className="text-green-700 text-sm">
-                          Verifiez les details ci-contre et cliquez sur "Confirmer la commande"
-                          pour finaliser votre achat.
+                        <p className="text-blue-700 text-sm">
+                          Verifiez les details ci-contre puis choisissez de recevoir un devis ou de passer commande directement.
                         </p>
                       </div>
                     </div>
 
-                    <Button
-                      onClick={handleCompleteOrder}
-                      className="w-full bg-amber-600 hover:bg-amber-700 text-white text-lg py-4 rounded-xl shadow-lg font-medium mt-4 flex items-center justify-center gap-2"
-                      disabled={sending}
-                    >
-                      {sending ? (
-                        <>
-                          <Loader2 className="animate-spin w-5 h-5 mr-2" />
-                          Traitement...
-                        </>
-                      ) : (
-                        'Confirmer la commande'
-                      )}
-                    </Button>
-                    {emailResult && <div className="text-red-600 mt-2">{emailResult}</div>}
+                    <div className="space-y-3">
+                      <Button
+                        onClick={() => handleComplete('devis')}
+                        className="w-full bg-amber-600 hover:bg-amber-700 text-white text-lg py-4 rounded-xl shadow-lg font-medium flex items-center justify-center gap-2"
+                        disabled={sending}
+                      >
+                        {sending ? (
+                          <>
+                            <Loader2 className="animate-spin w-5 h-5 mr-2" />
+                            Envoi en cours...
+                          </>
+                        ) : (
+                          'Recevoir mon devis gratuit'
+                        )}
+                      </Button>
+
+                      <div className="relative flex items-center justify-center my-2">
+                        <div className="border-t border-gray-200 w-full" />
+                        <span className="bg-white px-4 text-sm text-gray-400 absolute">ou</span>
+                      </div>
+
+                      <Button
+                        onClick={() => handleComplete('commande')}
+                        variant="outline"
+                        className="w-full border-green-500 text-green-700 hover:bg-green-50 text-lg py-4 rounded-xl font-medium flex items-center justify-center gap-2"
+                        disabled={sending}
+                      >
+                        {sending ? (
+                          <>
+                            <Loader2 className="animate-spin w-5 h-5 mr-2" />
+                            Envoi en cours...
+                          </>
+                        ) : (
+                          'Commander directement'
+                        )}
+                      </Button>
+                    </div>
+
+                    {emailResult && <div className="text-red-600 mt-2 text-center">{emailResult}</div>}
 
                     <div className="text-center mt-4">
                       <Button
