@@ -483,7 +483,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
                     </h2>
                   </CardHeader>
                   <CardContent className="p-8">
-                    <div className="space-y-4 mb-6">
+                    <div className="space-y-4 mb-6 mt-8">
                       <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm">
                         <h3 className="font-semibold text-blue-800 mb-2">
                           Votre selection est prete !
