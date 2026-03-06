@@ -27,7 +27,7 @@ export function FAQPetiteVitrine() {
     {
       id: 4,
       question: "Qui s'occupe de la maintenance du site ?",
-      answer: "C'est nous. Pour 19€/mois, nous assurons : les mises à jour techniques, les sauvegardes régulières, les modifications simples (textes, images…), et le support par e-mail sous 48h. Rien à gérer, votre site reste toujours à jour."
+      answer: "C'est nous. Pour 29€/mois, nous assurons : les mises à jour techniques, les sauvegardes régulières, les modifications simples (textes, images…), et le support par e-mail sous 48h. Rien à gérer, votre site reste toujours à jour."
     },
     {
       id: 5,
