@@ -313,7 +313,7 @@ export const EcommerceFlow: React.FC<EcommerceFlowProps> = ({
   };
 
   const handleFormCompleted = async () => {
-    await handleCompleteOrder();
+    changeFlowWithScroll('summary');
   };
 
   const goBack = () => {

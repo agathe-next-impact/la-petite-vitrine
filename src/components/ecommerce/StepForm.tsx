@@ -64,7 +64,15 @@ export const StepForm: React.FC<StepFormProps> = ({
     if (field.type === "email" && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value.toString())) {
-        return "Email non valide";
+        return "Veuillez entrer une adresse email valide";
+      }
+    }
+
+    if (field.type === "tel" && value) {
+      const cleaned = value.toString().replace(/[\s\-().]/g, '');
+      const phoneValid = /^(\+[\d]{7,}|\d{8,})$/.test(cleaned);
+      if (!phoneValid) {
+        return "Veuillez entrer un numéro valide (8 chiffres min. ou commençant par +)";
       }
     }
 
