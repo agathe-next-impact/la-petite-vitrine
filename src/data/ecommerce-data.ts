@@ -71,7 +71,7 @@ export const SUBSCRIPTIONS: Subscription[] = [
   {
     id: "maintenance-technique",
     title: "Maintenance technique",
-    price: 39,
+    price: 29,
     description: "Hebergement, nom de domaine et maintenance technique du site web",
     billingCycle: 'monthly'
   },

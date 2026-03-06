@@ -21,16 +21,32 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const isValidPhone = (value: string) =>
+    /^(\+[\d\s]{7,}|\d{8,})$/.test(value.replace(/[\s\-().]/g, ''));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isSubmitting) {
       console.log('⚠️ Soumission déjà en cours, ignorée');
       return;
     }
-    
+
     if (!firstName || !contact || !email) {
       setError('Veuillez remplir tous les champs');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError('Veuillez entrer une adresse email valide');
+      return;
+    }
+
+    if (!isValidPhone(contact)) {
+      setError('Veuillez entrer un numéro valide (8 chiffres min. ou commençant par +)');
       return;
     }
     
@@ -134,6 +150,7 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
             className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
           />
           <input
@@ -141,6 +158,8 @@ export const QuickContactForm: React.FC<QuickContactFormProps> = ({
             placeholder="Téléphone"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
+            required
+            pattern="(\+[\d\s\-().]{7,}|[\d\s\-().]{8,})"
             className="flex-1 px-3 py-2 border border-amber-300/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
           />
           <button

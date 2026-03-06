@@ -56,7 +56,7 @@ export const CGVPage = (): JSX.Element => {
                     <li><strong>Pack Essentiel (290€)</strong> : Site web One Page professionnel responsive, Google Business, 5 sections, mise à jour des contenus, nom de domaine + hébergement 1 an, livraison en 5 jours</li>
                     <li><strong>Pack Pro (490€)</strong> : Tout le pack de base + Facebook + Instagram Business + 3 pages additionnelles, livraison en 7 jours</li>
                     <li><strong>Pack Pro Plus (690€)</strong> : Tout le pack pro + 2 modules spécialisés, réseaux sociaux professionnels, livraison en 9 jours</li>
-                    <li><strong>Services de maintenance</strong> : Option Visibilité (29€/mois) ou Maintenance Pro Plus (39€/mois)</li>
+                    <li><strong>Services de maintenance</strong> : Option Visibilité (29€/mois) ou Maintenance Pro Plus (29€/mois)</li>
                   </ul>
                 </div>
               </section>
